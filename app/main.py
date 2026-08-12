@@ -18,7 +18,7 @@ class WaterLevelCheck:
         return WaterLevel(self.tank_id,self.water_level_precentage)
 
     def add_water(self,ammount):
-        if self.water_level_precentage + ammount >100:
+        if self.water_level_precentage + ammount >100:  
             self.water_level_precentage=100
         else:
             self.water_level_precentage += ammount            

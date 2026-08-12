@@ -1,15 +1,21 @@
-TODO: stage 5
+T
+
+ODO: stage 5
 move all to containers, configure it and mak it wokr together
-add kafka betweeen as a broker
 
-
-TODO:stage 4:
-refactor it , add some tests
+add some testss
 add listening server which will display all logs
 add api: where will be some controll
 add simple front to have  visual controll - with current status of water level
 add db: to save tank water level
 add more tanks
+
+
+
+TODO:stage 4:
+add kafka betweeen, add flask server ad small api to send msg
+adjust all to use kafka 
+run all on kafka container 
 
 stage 3:
 logger_decorator done
