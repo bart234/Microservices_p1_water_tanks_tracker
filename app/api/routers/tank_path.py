@@ -35,23 +35,23 @@ def switch_specific_attr(repo:SQLAlchemyRepository,tank_tag:str,attr_name: str) 
 
 WTF_LIST_OF_ATTR_TO_SET= list(WaterTankFeatures.model_fields.keys())[1:]
 
-# @router.get("/addtank")
-# def add_two_tanks_and_features(db:Session = Depends(get_db)):
-#     repo = RepositoryWaterTank(db)
-#     wt1=db_WaterTanks(tank_tag='test_tank_id1',
-#                         name='my_test_tank',
-#                         capacity=10,
-#                         owner='admin',
-#                         status=0,
-#                         valve_status=0)
-#     result =repo.add(wt1)
-#     wt2=db_WaterTanks(tank_tag='22344',
-#                         name='my_test_tank',
-#                         capacity=10,
-#                         owner='admin',
-#                         status=0,
-#                         valve_status=0)
-#     result2=repo.add(wt2)
+@router.get("/addtwodefaulttank")
+def add_two_tanks_and_features(db:Session = Depends(get_db)):
+    repo = RepositoryWaterTank(db)
+    wt1=db_WaterTanks(tank_tag='test_tank_id1',
+                        name='my_test_tank',
+                        capacity=10,
+                        owner='admin',
+                        status=0,
+                        valve_status=0)
+    result =repo.add(wt1)
+    wt2=db_WaterTanks(tank_tag='22344',
+                        name='my_test_tank',
+                        capacity=10,
+                        owner='admin',
+                        status=0,
+                        valve_status=0)
+    result2=repo.add(wt2)
 
 
 @router.get("/showallfeatures",response_model=list[WaterTankFeatures])

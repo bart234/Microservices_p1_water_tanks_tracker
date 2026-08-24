@@ -36,3 +36,7 @@ class db_TanksFeatures(Base):
             return True
         else:
             return False
+
+    @staticmethod
+    def get_features_list():
+        list =db_TanksFeatures.__getattribute__

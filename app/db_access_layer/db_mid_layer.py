@@ -7,6 +7,7 @@ from sqlalchemy import select,update,delete
 
 T=TypeVar("T")
 
+#[T] - required python > s3.12
 class SQLAlchemyRepository[T](ABC):
     def __init__(self,session: Session, model: Type[T]):
         self.model = model
