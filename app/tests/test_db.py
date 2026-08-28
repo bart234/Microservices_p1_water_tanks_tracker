@@ -1,4 +1,4 @@
-from app.models_data_base_structures.db_water_structure import db_WaterTanks,db_TanksFeatures
+from app.models_data_base_structures.tab_water_structure import db_WaterTanks,db_TanksFeatures
 from sqlalchemy import select
 
 
@@ -15,6 +15,7 @@ def test_water_tank_creation_save(db_test_session):
     
     query = select(db_WaterTanks).where(db_WaterTanks.tank_tag==test_tank_id)
     result =db_test_session.scalar(query)
+    db_test_session.commit()
     assert result.tank_tag==tank.tank_tag
     assert result.name==tank.name
     assert result.capacity==tank.capacity

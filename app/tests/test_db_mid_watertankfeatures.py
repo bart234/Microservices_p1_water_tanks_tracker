@@ -1,5 +1,5 @@
 from app.db_access_layer.db_mid_layer import RepositoryWaterTankFeatures
-from app.models_data_base_structures.db_water_structure import db_TanksFeatures
+from app.models_data_base_structures.tab_water_structure import db_TanksFeatures
 from sqlalchemy import select
 import pytest
 
@@ -13,6 +13,7 @@ class TestWaterTankFeatures:
                             sms_service=0,
                             logger=0)
         result_add =self.repo.add(wtf)
+        db_test_session.commit()
         assert result_add==wtf
 
     def test_get(self,db_test_session,add_dummy_wtf_to_db):
@@ -40,6 +41,7 @@ class TestWaterTankFeatures:
         test_tank_id = 'test_tank_fixtures_2nd'
         self.repository = RepositoryWaterTankFeatures(db_test_session)
         result = self.repository.update(test_tank_id,'autofill',1)
+        db_test_session.commit()
         assert result 
 
     def test_update_and_return_wt(self,db_test_session,add_dummy_wtf_to_db):
@@ -47,6 +49,7 @@ class TestWaterTankFeatures:
         self.repository = RepositoryWaterTankFeatures(db_test_session)
         autofill_before = (self.repository.get(test_tank_id)).autofill
         result = self.repository.update_and_return(test_tank_id,'autofill',1)
+        db_test_session.commit()
         assert result.tank_tag == test_tank_id
         assert result.autofill != autofill_before
         assert result.autofill == 1
@@ -55,6 +58,7 @@ class TestWaterTankFeatures:
         test_tank_id = 'test_tank_fixtures_3rd'
         self.repository = RepositoryWaterTankFeatures(db_test_session)
         result = self.repository.delete(test_tank_id)
+        db_test_session.commit()
         assert result == True
         assert self.repository.get(test_tank_id) == None
 

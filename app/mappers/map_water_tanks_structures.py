@@ -1,4 +1,4 @@
-from app.models_data_base_structures.db_water_structure import db_WaterTanks,db_TanksFeatures
+from app.models_data_base_structures.tab_water_structure import db_WaterTanks,db_TanksFeatures
 from app.models_data_structures.water_structure import WaterTank,WaterTankFeatures
 
 class Mapper_WaterTanks:

@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
-from app.models_data_base_structures.db_water_structure import Base
-from app.models_data_base_structures.db_water_structure import db_WaterTanks,db_TanksFeatures
+from app.models_data_base_structures.tab_water_structure import Base
+from app.models_data_base_structures.tab_water_structure import db_WaterTanks,db_TanksFeatures
 from app.main import app
 import pytest
 from sqlalchemy.orm import sessionmaker,declarative_base

@@ -1,7 +1,8 @@
 from abc import ABC
 from typing import TypeVar,Type,Optional
 from app.models_data_structures.water_structure import *
-from app.models_data_base_structures.db_water_structure import *
+from app.models_data_base_structures.tab_water_structure import *
+from app.models_data_base_structures.tab_notification import Notification_tab
 from sqlalchemy.orm import Session
 from sqlalchemy import select,update,delete
 
@@ -16,7 +17,6 @@ class SQLAlchemyRepository[T](ABC):
     def add(self,data:T) -> T:
         new_data = data #object will be updated with id after save
         self.session.add(new_data)
-        self.session.commit()
         return new_data
 
     def get(self,tank_tag:str)->Optional[T]:
@@ -40,7 +40,6 @@ class SQLAlchemyRepository[T](ABC):
                     where(getattr(self.model,'tank_tag')==tank_tag).\
                     values({getattr(self.model,attr_to_change):new_value})
         result = self.session.execute(upd_query)
-        self.session.commit()
         return result.rowcount >0
 
     def update_and_return(self,tank_tag:str,attr_to_change: str,new_value)->Optional[T]:
@@ -53,7 +52,6 @@ class SQLAlchemyRepository[T](ABC):
         del_query = delete(self.model).\
                     where(getattr(self.model,'tank_tag')==tank_tag)
         result = self.session.execute(del_query)
-        self.session.commit()
         return result.rowcount > 0
 
 class RepositoryWaterTank(SQLAlchemyRepository[db_WaterTanks]):
@@ -63,3 +61,7 @@ class RepositoryWaterTank(SQLAlchemyRepository[db_WaterTanks]):
 class RepositoryWaterTankFeatures(SQLAlchemyRepository[db_TanksFeatures]):
     def __init__(self, session):
         super().__init__(session, db_TanksFeatures)
+
+class RepositoryNotification_tab(SQLAlchemyRepository[Notification_tab]):
+    def __init__(self, session):
+        super().__init__(session, Notification_tab)

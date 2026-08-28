@@ -1,7 +1,7 @@
 services:
   app:
-    build: .
-    container_name: fast_api_water_tank
+    build: ./app
+    container_name: service_api_watertank
     # environment:
     #     DATABASE_URL: "sqlite:///./db_water_system.db"
     ports:
@@ -11,9 +11,45 @@ services:
     depends_on:
       db:
         condition: service_healthy
+  service_sms_notification:
+    build: ./ServiceSMS
+    container_name: service_sms_notification
+    volumes:
+      - ./ServiceSMS:/ServiceSMS
+    depends_on:
+      kafka:
+        condition: service_started
+        
+  service_db_to_kafka:
+    build: ./ServiceNotificationForKafka
+    container_name: service_db_to_kafka
+    volumes:
+      - ./ServiceNotificationForKafka:/ServiceNotificationForKafka
+    environment:      
+      POSTGRES_USER_FILE: /run/secrets/db_user              
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_DB_LOCALHOST: /run/secrets/db_localhost       # db
+      POSTGRES_DB_FILE: /run/secrets/db_postgres_db   
+      PROD_MODE: "False"
+      WAIT_TIME: 5
+      RECORD_LIMIT: 7
+
+    secrets:
+      - db_password
+      - db_user
+      - db_postgres_db
+      - db_localhost
+    depends_on:
+      db:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+
   db:
-    container_name: postgress_kafka_02
+    container_name: inf_postgress
     image: postgres:17-alpine3.22
+    ports:
+      - "5433:5432"     #in out are diffrent , for test on main computer (5433)
     environment:
       POSTGRES_USER_FILE: /run/secrets/db_user              
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
@@ -32,6 +68,7 @@ services:
 
   
   adminer:
+    container_name: inf_db_adminer
     image: adminer
     ports:
       - 8080:8080
@@ -41,56 +78,54 @@ services:
       db:
         condition: service_healthy
 
+  kafka:
+    image: confluentinc/cp-kafka:7.8.3
+    container_name: inf_kafka
+    ports:
+      - "9092:9092"
+    environment:  
+      CLUSTER_ID: 'sdfko23o-23kk4kd-gg0043'
+      KAFKA_NODE_ID: 1 
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      #we will use 3 channals to communicate with kafka
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT, EXTERNAL:PLAINTEXT, CONTROLLER:PLAINTEXT
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      #here we sett on what ports on what channels kafka should liten for event
+      #INTERNALis for docker communicate between containers
+      #0.0.0.0 - listen on all network card in that container
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+
+      #client from docker network see diffrent thing - so it have to connect to INTERNAL://kafka:29092
+      #other container see each other on docker on labels = container name , here "kafka"
+      #if fast api will ask "where should I send my messages?" answer is "kafka:29092"
+      #extrnal access if from phisical machine , like browser so it will be localhost
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092, EXTERNAL://localhost:9092
+
+      #it is information for other brokers (if I have more then 1)
+      #it wil tell them on which chanell they should talk eachother 
+      #here everything will be in docker so they shoul talk on INTERNAL channel 
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /var/lib/kafka/data/kraft-combined-logs
+    volumes:
+      - kafka_kraft:/var/lib/kafka/data
+volumes:
+    #if i idint put path here docker will decide thwere to put that data
+    #by default in win it is hidden in docker app machine
+    kafka_kraft:
+
+
 secrets:
   db_password:
     file: ./db_password.txt
   db_user:
     file: ./db_user.txt
   db_postgres_db:
-    file: ./db_postgress_db_name.txt  
+    file: ./db_postgres_db.txt  
   db_localhost:
     file: ./db_localhost.txt
-
-
-
-
-#   kafka:
-#     image: confluentinc/cp-kafka:7.8.3
-#     container_name: kafka_2
-#     ports:
-#       - "9092:9092"
-#     environment:  
-#       CLUSTER_ID: 'sdfko23o-23kk4kd-gg0043'
-#       KAFKA_NODE_ID: 1 
-#       KAFKA_PROCESS_ROLES: broker,controller
-#       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-#       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-#       #we will use 3 channals to communicate with kafka
-#       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT, EXTERNAL:PLAINTEXT, CONTROLLER:PLAINTEXT
-#       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-#       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-
-#       #here we sett on what ports on what channels kafka should liten for event
-#       #INTERNALis for docker communicate between containers
-#       #0.0.0.0 - listen on all network card in that container
-#       KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-
-#       #client from docker network see diffrent thing - so it have to connect to INTERNAL://kafka:29092
-#       #other container see each other on docker on labels = container name , here "kafka"
-#       #if fast api will ask "where should I send my messages?" answer is "kafka:29092"
-#       #extrnal access if from phisical machine , like browser so it will be localhost
-#       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka_2:29092, EXTERNAL://localhost:9092
-
-#       #it is information for other brokers (if I have more then 1)
-#       #it wil tell them on which chanell they should talk eachother 
-#       #here everything will be in docker so they shoul talk on INTERNAL channel 
-#       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-
-#       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-#       KAFKA_LOG_DIRS: /var/lib/kafka/data/kraft-combined-logs
-#     volumes:
-#       - kafka_kraft:/var/lib/kafka/data
-# volumes:
-#     #if i idint put path here docker will decide thwere to put that data
-#     #by default in win it is hidden in docker app machine
-#     kafka_kraft:

@@ -1,5 +1,5 @@
 from app.db_access_layer.db_mid_layer import RepositoryWaterTank
-from app.models_data_base_structures.db_water_structure import db_WaterTanks
+from app.models_data_base_structures.tab_water_structure import db_WaterTanks
 
 
 class TestWaterTank:
@@ -13,6 +13,7 @@ class TestWaterTank:
                         status=0,
                         valve_status=0)
         result_add =self.repo.add(wt)
+        db_test_session.commit()
         assert result_add==wt
 
     def test_get(self,db_test_session,add_dummy_wt_to_db):
@@ -42,6 +43,7 @@ class TestWaterTank:
         test_tank_id = 'test_tank_fixtures_2nd'
         self.repository = RepositoryWaterTank(db_test_session)
         result = self.repository.update(test_tank_id,'capacity',900)
+        db_test_session.commit()
         assert result 
 
     def test_update_and_return_wt(self,db_test_session,add_dummy_wt_to_db):
@@ -49,6 +51,7 @@ class TestWaterTank:
         self.repository = RepositoryWaterTank(db_test_session)
         capacity_before = (self.repository.get(test_tank_id)).capacity
         result = self.repository.update_and_return(test_tank_id,'capacity',900)
+        db_test_session.commit()
         assert result.tank_tag == test_tank_id
         assert result.capacity != capacity_before
         assert result.capacity == 900
@@ -57,6 +60,7 @@ class TestWaterTank:
         test_tank_id = 'test_tank_fixtures_3rd'
         self.repository = RepositoryWaterTank(db_test_session)
         result = self.repository.delete(test_tank_id)
+        db_test_session.commit()
         assert result == True
         assert self.repository.get(test_tank_id) == None
 

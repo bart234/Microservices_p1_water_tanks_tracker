@@ -1,5 +1,5 @@
 from app.mappers.map_water_tanks_structures import Mapper_WaterTanks,Mapper_TankFeatures
-from app.models_data_base_structures.db_water_structure import db_WaterTanks,db_TanksFeatures
+from app.models_data_base_structures.tab_water_structure import db_WaterTanks,db_TanksFeatures
 from app.models_data_structures.water_structure import WaterTank,WaterTankFeatures
 
 

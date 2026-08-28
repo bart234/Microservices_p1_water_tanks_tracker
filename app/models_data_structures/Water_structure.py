@@ -1,11 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
 
 
 class WaterTankCreation(BaseModel):
-    tank_tag: str | None = None
-    name:str
-    capacity:int
-    owner:str
+    tank_tag: str | None = Field(max_length=15,default=None)
+    name:str = Field(max_length=12)
+    capacity:int = Field(ge=1,lt=10000)
+    owner:str = Field(max_length=12)
 
 class WaterTankFeatures(BaseModel):
     tank_tag:str
