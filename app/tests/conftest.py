@@ -1,38 +1,41 @@
 from fastapi.testclient import TestClient
-from app.models_data_base_structures.tab_water_structure import Base
-from app.models_data_base_structures.tab_water_structure import db_WaterTanks,db_TanksFeatures
-from app.main import app
 import pytest
-from sqlalchemy.orm import sessionmaker,declarative_base
+from app.api.routers import tank_path
+from fastapi import FastAPI
+from app.db_cfg import Base
+from app.infrastructure.database import get_db
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+from sqlalchemy.pool import StaticPool
+from app.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
 
+app_for_test = FastAPI()
+app_for_test.include_router(tank_path.router)
+engine_test = create_engine('sqlite:///:memory:',echo=True, connect_args={"check_same_thread": False},poolclass=StaticPool)
+Session=sessionmaker(bind=engine_test)
+
+     
 @pytest.fixture
-def client():
-    with TestClient(app) as c:
+def session_client_with_db(session_db):
+    def new_override_get_db():  
+        yield session_db
+    app_for_test.dependency_overrides[get_db] = new_override_get_db
+    with TestClient(app_for_test) as c:
         yield c
 
 @pytest.fixture
-def test_data_for_api_check(client):    
-    #default tank for tests, and it will return it
-    response = client.post("/tank/create/",
-                        headers={},
-                        json={'tank_tag':"test_tank1",'name':'name1','capacity':10,'owner':'bob','status':0}
-                        )
-    assert response.status_code == 200
-    return response.json()
+def session_db():
+    Base.metadata.create_all(bind=engine_test)    
+    db_test_session=Session()
+    try:
+        yield db_test_session
+    finally:
+        db_test_session.close()
+        Base.metadata.drop_all(bind=engine_test)
 
-@pytest.fixture
-def db_test_session():
-    # Base = declarative_base() - we need object which was used in data model
-    engine = create_engine('sqlite:///:memory:',echo=False)
-    Base.metadata.create_all(engine)
-    Session=sessionmaker(bind=engine)
-    session=Session()
-    yield session
-    session.close()
 
 @pytest.fixture()
-def add_dummy_wt_to_db(db_test_session):
+def add_dummy_wt_to_db(session_db):
     test_tank_id = 'test_tank_fixtures'
     tank = db_WaterTanks(tank_tag=test_tank_id,
                     name='my_test_tank',
@@ -40,8 +43,8 @@ def add_dummy_wt_to_db(db_test_session):
                     owner='admin',
                     status=0,
                     valve_status=0)
-    db_test_session.add(tank)
-    db_test_session.commit()
+    session_db.add(tank)
+    session_db.commit()
     test_tank_id = 'test_tank_fixtures_2nd'
     tank = db_WaterTanks(tank_tag=test_tank_id,
                     name='my_test_tank_2nd',
@@ -49,8 +52,8 @@ def add_dummy_wt_to_db(db_test_session):
                     owner='admin',
                     status=0,
                     valve_status=0)
-    db_test_session.add(tank)
-    db_test_session.commit()
+    session_db.add(tank)
+    session_db.commit()
     test_tank_id = 'test_tank_fixtures_3rd'
     tank = db_WaterTanks(tank_tag=test_tank_id,
                     name='my_test_tank_2nd',
@@ -58,32 +61,41 @@ def add_dummy_wt_to_db(db_test_session):
                     owner='admin',
                     status=0,
                     valve_status=0)
-    db_test_session.add(tank)
-    db_test_session.commit()
+    session_db.add(tank)
+    session_db.commit()
 
+@pytest.fixture
+def data_for_test_created_by_api(session_client_with_db):    
+    #default tank for tests, and it will return it
+    response = session_client_with_db.post("/tank/create/",
+                        headers={},
+                        json={'tank_tag':"test_tank1",'name':'name1','capacity':10,'owner':'bob','status':0}
+                        )
+    assert response.status_code == 200
+    return response.json()
 
 @pytest.fixture()
-def add_dummy_wtf_to_db(db_test_session):
+def add_dummy_wtf_to_db(session_db):
     test_tank_id = 'test_tank_fixtures'
     wtf = db_TanksFeatures(tank_tag=test_tank_id,
                     autofill=0,
                     sms_service=0,
                     logger=0)
-    db_test_session.add(wtf)
-    db_test_session.commit()
+    session_db.add(wtf)
+    session_db.commit()
 
     test_tank_id = 'test_tank_fixtures_2nd'
     wtf2 = db_TanksFeatures(tank_tag=test_tank_id,
                     autofill=0,
                     sms_service=0,
                     logger=0)
-    db_test_session.add(wtf2)
-    db_test_session.commit()
+    session_db.add(wtf2)
+    session_db.commit()
 
     test_tank_id = 'test_tank_fixtures_3rd'
     wtf3 = db_TanksFeatures(tank_tag=test_tank_id,
                     autofill=0,
                     sms_service=0,
                     logger=0)
-    db_test_session.add(wtf3)
-    db_test_session.commit()
+    session_db.add(wtf3)
+    session_db.commit()

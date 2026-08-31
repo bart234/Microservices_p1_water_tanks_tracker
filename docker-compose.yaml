@@ -2,7 +2,8 @@ services:
   app:
     build: ./app
     container_name: service_api_watertank
-    # environment:
+    environment:
+      - PYTHONUNBUFFERED=1    #it solve problem when python logs are not appear in console
     #     DATABASE_URL: "sqlite:///./db_water_system.db"
     ports:
       - 80:80
@@ -11,9 +12,21 @@ services:
     depends_on:
       db:
         condition: service_healthy
-  service_sms_notification:
+      kafka:
+        condition: service_started 
+        
+  service_onoff_watertank:
+    build: ./ServiceTurnOnWaterTank
+    container_name: service_turnOnOff_watertank
+    volumes:
+      - ./ServiceTurnOnWaterTank:/ServiceTurnOnWaterTank
+    depends_on:
+      kafka:
+        condition: service_started    
+            
+  service_sms_notificaiton:
     build: ./ServiceSMS
-    container_name: service_sms_notification
+    container_name: service_sms_notificaiton
     volumes:
       - ./ServiceSMS:/ServiceSMS
     depends_on:
@@ -65,7 +78,6 @@ services:
       interval: 3s
       timeout: 3s
       retries: 5
-
   
   adminer:
     container_name: inf_db_adminer

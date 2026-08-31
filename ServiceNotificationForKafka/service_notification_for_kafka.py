@@ -25,9 +25,9 @@ DATABASE_URL="postgresql://{user}:{pwd}@{db_host}:5432/{db_name}".format(user=ge
 producer = Producer({'bootstrap.servers': 'kafka:29092'})
 def delivery_report(err,msg):
     if err: 
-        print(f"Delivery error {err}")
+        print(f"Log: Delivery error {err}")
     else:
-        print(f" Delivered {msg.value().decode("utf-8")}")
+        print(f"Log: NotificationService->Kafka: delivered: {msg.value().decode("utf-8")}")
 
 #.env file
 # user = os.getenv("POSTGRES_USER_FILE", "postgres")
@@ -51,7 +51,7 @@ try:
         try:
             db = RepositoryNotification_tab(session)
 
-            print("im getting data")
+            print("Log: Im waiting for data")
             #get notification to send father
             result = db.select_last_n_notprocessed(limit=limit)
 
@@ -75,7 +75,7 @@ try:
             session.close()
 
         for a,v in data_for_kafka.items():     
-            print(v)
+            print(f"Log: NotificationService->Kafka: {v}",flush=True)
             producer.produce(topic=v['kafka_topic'],
                              value=json.dumps(v).encode("utf-8"),
                              callback=delivery_report)
@@ -85,5 +85,5 @@ try:
         producer.flush()
 
 except KeyboardInterrupt as e:
-    print("App done")
+    print("Log: App done")
   

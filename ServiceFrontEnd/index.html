@@ -1,10 +1,10 @@
-// template from AI
+<!-- template from AI -->
 
 <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Kafka Callbacks Stream</title>
+    <title>Kafka Callbacks Stream - </title>
     <style>
         body { font-family: Arial, sans-serif; margin: 30px; background: #f4f4f9; }
         h1 { color: #333; }
@@ -26,12 +26,14 @@
     </div>
 
     <script>
-        // Łączymy się z endpointem SSE na Twoim backendzie FastAPI
-        const socket = new WebSocket('ws://localhost:80/ws/logs');
-
+        // we crate ne websocket, which conencts to endpoint from api
+        const socket = new WebSocket('ws://127.0.0.1:80/ws/logs');
         const logContainer = document.getElementById('log-container');
 
-        // Obsługa przychodzących wiadomości
+        //if messag occure that function catching it na parse
+        //topic: service_return_msg
+        //fields availible: service_time(timestamp-const),tank_tag(str-const),action(str-variety)
+
         socket.onmessage = function(event) {
             const data = JSON.parse(event.data);
             console.log(data)
@@ -39,7 +41,7 @@
             // Tworzymy nowy element logu
             const logEntry = document.createElement('div');
             logEntry.classList.add('log-entry');
-                logEntry.innerHTML = `<span class="success">[SUKCES]</span> Time: <strong>${data.service_time}</strong> | Tank Tag: ${data.tank_tag} | Action: ${data.action}`;
+                logEntry.innerHTML = `Time: <strong>${data.service_time}</strong> | Tank Tag: ${data.tank_tag} | Action: ${data.action}`;
 
             // if (data.status === 'success') {
             //     logEntry.innerHTML = `<span class="success">[SUKCES]</span> Klucz: <strong>${data.key}</strong> | Topic: ${data.topic} | Partycja: ${data.partition} | Offset: ${data.offset}`;
@@ -47,7 +49,7 @@
             //     logEntry.innerHTML = `<span class="error">[BŁĄD]</span> Klucz: <strong>${data.key}</strong> | Powód: ${data.error}`;
             // }
 
-            // Dodajemy na początek lub na koniec listy i przewijamy w dół
+            //append msg into window 
             logContainer.appendChild(logEntry);
             logContainer.scrollTop = logContainer.scrollHeight;
         };

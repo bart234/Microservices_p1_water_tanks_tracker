@@ -5,7 +5,8 @@ from app.db_cfg import Base
 class db_WaterTanks(Base):
     __tablename__='water_tanks'
     id = Column(Integer, primary_key=True)
-    tank_tag= Column(String,unique=True)    #
+    correlation_id = Column(String,unique=True)
+    tank_tag= Column(String,unique=True)
     name = Column(String)
     capacity = Column(Integer,default=-1)
     owner = Column(String)
@@ -20,7 +21,6 @@ class db_WaterTanks(Base):
         else:
             return False
          
-
 
 class db_TanksFeatures(Base):
     __tablename__="tanks_features"    
@@ -40,3 +40,4 @@ class db_TanksFeatures(Base):
     @staticmethod
     def get_features_list():
         list =db_TanksFeatures.__getattribute__
+        return list

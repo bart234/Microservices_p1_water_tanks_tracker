@@ -1,6 +1,6 @@
 from abc import ABC
 from typing import TypeVar,Type,Optional
-from app.models_data_structures.water_structure import *
+from app.models_pydantic_structures.water_structure import *
 from app.models_data_base_structures.tab_water_structure import *
 from app.models_data_base_structures.tab_notification import Notification_tab
 from sqlalchemy.orm import Session

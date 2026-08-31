@@ -17,6 +17,4 @@ DATABASE_URL=f"postgresql://{get_secrets('db_user')}:{get_secrets('db_password')
 # DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./default.db")
 
 engine = create_engine(DATABASE_URL,echo=True)
-
 Base = declarative_base()
-Base.metadata.create_all(engine)
