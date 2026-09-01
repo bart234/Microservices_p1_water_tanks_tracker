@@ -8,42 +8,22 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from aiokafka import AIOKafkaConsumer
 
-
-# def get_fastApi(testing:bool = False) -> FastAPI:
-
-#     @asynccontextmanager
-#     async def lifespan(app: FastAPI):
-#         Base.metadata.create_all(bind=engine)
-#         #async function will run function consume_kafka_callbacks as backgound
-#         #consume_kafka_callbacks - will listen in background on desired topics
-#         kafka_task =asyncio.create_task(consume_kafka_callbacks())
-#         yield
-#         kafka_task.cancel()
-#         try:
-#             await kafka_task
-#         except asyncio.CancelledError:
-#             print("Kafka client is going to close")
-
-#     if testing:
-#         app= FastAPI(lifespan=lifespan)
-#         app.include_router(tank_path.router)
-#         return app
-#     else:
-        
-    
+kafka_task = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global kafka_task
     Base.metadata.create_all(bind=engine)
     #async function will run function consume_kafka_callbacks as backgound
     #consume_kafka_callbacks - will listen in background on desired topics
     kafka_task =asyncio.create_task(consume_kafka_callbacks())
     yield
-    kafka_task.cancel()
-    try:
-        await kafka_task
-    except asyncio.CancelledError:
-        print("Kafka client is going to close")
+    if kafka_task:
+        kafka_task.cancel()
+        try:
+            await kafka_task
+        except asyncio.CancelledError:
+            print("Kafka client is going to close")
 
 
 app = FastAPI(lifespan=lifespan)
@@ -65,7 +45,13 @@ KAFKA_CONSUMER_CONFIG = {
     "auto.offset.reset": "earliest"
 }
 
-
+def get_corr_id_from_headers(msg)-> str:
+    try:
+        header_dict ={k: v.decode('utf-8') for k,v in msg.headers}
+        return header_dict.get("corr_id")
+    except:
+        return None
+                
 @app.get("/")
 def main():
     return {"msg":"bob"}
@@ -86,23 +72,23 @@ async def websocket_endpoint(websocket: WebSocket):
         active_connections.remove(websocket)
 
 async def consume_kafka_callbacks():
-    consumer = AIOKafkaConsumer(
-                                'service_return_msg',
-                                bootstrap_servers="kafka:29092",
-                                group_id='api_feedback_loop',
-                                auto_offset_reset="earliest")      
-     
-    #'kafka:29092', - in docker network - it is called kafka
-    #"fastapi_front_broadcaster"    
+    consumer = AIOKafkaConsumer(*KAFKA_TOPIC_CONSUMER,
+                                bootstrap_servers=KAFKA_BOOTSTRAP_SERVER_CONSUMER,
+                                group_id="api_feedback_loop",
+                                auto_offset_reset="earliest")   
 
     await consumer.start()
+    print("Log: Kafka connection success.Consumer started")
     try:
         #it sit inbackground and if any msg appear from expected topic
         async for msg in consumer:
-            print(f"Log: Main to front:{msg.value.decode('utf-8')}",flush=True)
+            
 
+            #convert main data( b -> string -> json)
             event_data = json.loads(msg.value.decode('utf-8'))
             
+            print(f"Log [{get_corr_id_from_headers(msg)}][{event_data['tank_tag']}]: Main to front:{msg.value.decode('utf-8')}",flush=True)
+
             # /ws/logs have list about conencted browsers
             #and loop will send every browser msg from kafka
             for connection in active_connections:
@@ -111,6 +97,6 @@ async def consume_kafka_callbacks():
                 except Exception:
                     pass
     except Exception as e:
-        print(f"Kafka error during data gathering from services: {e}", flush=True)
+        print(f"Log: Kafka error during data gathering from services: {e}", flush=True)
     finally:
         await consumer.stop()

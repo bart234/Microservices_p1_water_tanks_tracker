@@ -17,11 +17,11 @@ services:
         
   service_onoff_watertank:
     build: ./ServiceTurnOnWaterTank
-    container_name: service_turnOnOff_watertank
+    container_name: service_onoff_watertank
     volumes:
       - ./ServiceTurnOnWaterTank:/ServiceTurnOnWaterTank
     depends_on:
-      kafka:
+      app: 
         condition: service_started    
             
   service_sms_notificaiton:
@@ -34,10 +34,10 @@ services:
         condition: service_started
         
   service_db_to_kafka:
-    build: ./ServiceNotificationForKafka
+    build: ./ServiceDBtoKafka
     container_name: service_db_to_kafka
     volumes:
-      - ./ServiceNotificationForKafka:/ServiceNotificationForKafka
+      - ./ServiceDBtoKafka:/ServiceDBtoKafka
     environment:      
       POSTGRES_USER_FILE: /run/secrets/db_user              
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password

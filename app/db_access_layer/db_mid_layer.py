@@ -3,6 +3,7 @@ from typing import TypeVar,Type,Optional
 from app.models_pydantic_structures.water_structure import *
 from app.models_data_base_structures.tab_water_structure import *
 from app.models_data_base_structures.tab_notification import Notification_tab
+from app.models_data_base_structures.tab_maintenence_data import MaintenenceData_tab
 from sqlalchemy.orm import Session
 from sqlalchemy import select,update,delete
 
@@ -65,3 +66,21 @@ class RepositoryWaterTankFeatures(SQLAlchemyRepository[db_TanksFeatures]):
 class RepositoryNotification_tab(SQLAlchemyRepository[Notification_tab]):
     def __init__(self, session):
         super().__init__(session, Notification_tab)
+
+class RepositoryMaintenenceData():
+    def __init__(self,session: Session):
+        self.model = MaintenenceData_tab
+        self.session = session
+
+    def add(self,data:MaintenenceData_tab) -> MaintenenceData_tab:
+        new_data = data #object will be updated with id after save
+        self.session.add(new_data)
+        return new_data
+    
+    def get_corr_id(self,tank_tag:str)-> str | None:
+        query = select(self.model).where(getattr(self.model,'tank_tag')==tank_tag)
+        result = self.session.scalar(query)
+        try:
+            return result.correlation_id  
+        except:
+            return None

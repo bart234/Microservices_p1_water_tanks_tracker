@@ -1,14 +1,14 @@
 from fastapi import FastAPI,HTTPException,APIRouter,Depends
-import uuid
 from app.models_pydantic_structures.water_structure import *
 from app.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
 from app.models_data_base_structures.tab_notification import Notification_tab
+from app.models_data_base_structures.tab_maintenence_data import MaintenenceData_tab
 from app.infrastructure.database import get_db
 from app.db_access_layer.db_mid_layer import RepositoryWaterTank, RepositoryWaterTankFeatures,\
-        RepositoryNotification_tab, SQLAlchemyRepository
+        RepositoryNotification_tab, RepositoryMaintenenceData, SQLAlchemyRepository
 from app.mappers.map_water_tanks_structures import Mapper_WaterTanks,Mapper_TankFeatures
 from sqlalchemy.orm import Session
-import datetime
+import datetime,uuid
 
 router = APIRouter(prefix="/tank",tags=['tanks'])
     
@@ -60,8 +60,16 @@ def add_two_tanks_and_features(db:Session = Depends(get_db)):
     wtf2=db_TanksFeatures(tank_tag='22344')
     repo_wtf=RepositoryWaterTankFeatures(db)
     repo_wtf.add(wtf1)
-    repo_wtf.add(wtf2)
+    repo_wtf.add(wtf2)    
+    #db.flush()          #we force to generate id without connection close
+    repo_maitenence = RepositoryMaintenenceData(db)
+    maitenence_wt1=repo_maitenence.add(MaintenenceData_tab(tank_tag=wtf1.tank_tag,
+                                   correlation_id=uuid.uuid4().hex))
+    maitenence_wt2=repo_maitenence.add(MaintenenceData_tab(tank_tag=wtf2.tank_tag,
+                                   correlation_id=uuid.uuid4().hex))    
     db.commit()
+    print(f"Log[{maitenence_wt1.correlation_id}][{wt1.tank_tag}] -WT and WTF created")
+    print(f"Log[{maitenence_wt2.correlation_id}][{wt2.tank_tag}] -WT and WTF created")
 
 @router.get("/showallfeatures",response_model=list[WaterTankFeatures])
 def get_show_all_water_containers_features(db:Session = Depends(get_db)):
@@ -75,6 +83,7 @@ def get_show_all_water_containers(db:Session = Depends(get_db)):
 
 @router.post("/create",response_model=WaterTank)
 def post_create_tank(watertank_creation:WaterTankCreation,db:Session = Depends(get_db)):
+    #TODO: check if tank_tag is not occupy
     dta_new_tank =WaterTank(tank_tag=str(uuid.uuid4())[0:12] if watertank_creation.tank_tag is None else watertank_creation.tank_tag,
                  name=watertank_creation.name,
                  capacity=watertank_creation.capacity,
@@ -82,16 +91,23 @@ def post_create_tank(watertank_creation:WaterTankCreation,db:Session = Depends(g
                  )  
     try:  
         tank_db_to_add = Mapper_WaterTanks.dta_to_db(dta_new_tank)
-        db_wt=RepositoryWaterTank(db)
-        to_return =db_wt.add(tank_db_to_add)
+        repo_db_wt=RepositoryWaterTank(db)
+        to_return =repo_db_wt.add(tank_db_to_add)
 
         dta_tank_features=WaterTankFeatures(tank_tag=dta_new_tank.tank_tag)
         tank_f_db_to_add =Mapper_TankFeatures.dta_to_db(dta_tank_features)    
-        db_wtf=RepositoryWaterTankFeatures(db)        
-        saved_wtf = db_wtf.add(tank_f_db_to_add)
+        repo_db_wtf=RepositoryWaterTankFeatures(db)        
+        saved_wtf = repo_db_wtf.add(tank_f_db_to_add)
+        
+        repo_maintenence = RepositoryMaintenenceData(db)
+        maintenence_wt =MaintenenceData_tab(tank_tag=to_return.tank_tag,
+                                            correlation_id=uuid.uuid4().hex)
+        repo_maintenence.add(maintenence_wt)
                     
         db.commit()   
+        
         #TODO: send info to kafka->('service_return_msg')-> kafka_api_front_printer 
+        print(f"Log[{maintenence_wt.correlation_id}][{tank_db_to_add.tank_tag}] -WT and WTF created")
         return Mapper_WaterTanks.db_to_dta(to_return)
     
     except Exception as e:
@@ -144,7 +160,8 @@ def post_feature_turnOff_turnOn(tank_tag:str,feature_name:str,db:Session = Depen
         #prepare notification action
         notif = Notification_tab(tank_tag=tank_tag,kafka_msg_group=feature_name,field_changed="tufnOnOff",
                                         new_value=return_dict['next_value'],process_flag=-1,
-                                        time_recive=datetime.datetime.now(datetime.timezone.utc),time_done=None)
+                                        time_recive=datetime.datetime.now(datetime.timezone.utc),time_done=None,
+                                        service_data=None )
         db_notifaction = RepositoryNotification_tab(db)
         db_notifaction.add(notif)
 

@@ -1,7 +1,5 @@
 from sqlalchemy import Column,Integer,String,DateTime
-from sqlalchemy.orm import declarative_base
-
-Base = declarative_base()
+from base import Base
 
 class Notification_tab(Base):
     __tablename__='notification'
@@ -13,6 +11,7 @@ class Notification_tab(Base):
     process_flag=Column(Integer)  #-1 pending, 0 working, 1 done
     time_recive=Column(DateTime)
     time_done=Column(DateTime)
+    service_data=Column(String,default=None)
 
 
     def __str__(self):

@@ -8,14 +8,20 @@ todo: add additional services
 too: refactor names in api
 todo: add additional watech feature changes to db and launch it notification service for them
 todo: prepare services for these
-todo: think what to do with db_texts -> to json?
+todo: think what to do with text files about db auth db_texts -> to json?
 todo: think about front to controll that api (simple buttons, logs on botm,)
 
-
+todo: add neww field to notification table, to inform service what other service should be informed about action
+todo: how to prepare solution above, from 4 solution i will implement small db in sms service which will keep info about 
+    if tank have sms_service_on, that info will be pass to sms_service - service will save it. 
+    from that time service will be listening other events - here watertankOnNoff - will check if wt is on list and will
+    send info or ont
+    short: when we set service=on , we inform about that that service, and we add tank_tag and topick which about we send sms 
 
 stage 9:
-todo: add logs, add new column with corr_id,  pass that id trough kafka by header injection to services
-todo: add that corr_it to log naming to have clear path about action on that id
+done: add logs, add new table with corr_id,  pass that id trough kafka by header injection to services
+done: refactor in services
+done: add that corr_id to log naming to have clear path about action on that id
 
 stage 8:
 after whole app was set and configure test for api failed at all

@@ -1,11 +1,9 @@
 from sqlalchemy import Column,Integer,String
 from app.db_cfg import Base
 
-
 class db_WaterTanks(Base):
     __tablename__='water_tanks'
     id = Column(Integer, primary_key=True)
-    correlation_id = Column(String,unique=True)
     tank_tag= Column(String,unique=True)
     name = Column(String)
     capacity = Column(Integer,default=-1)
