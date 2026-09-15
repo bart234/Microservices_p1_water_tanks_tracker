@@ -1,12 +1,12 @@
 from fastapi import FastAPI,HTTPException,APIRouter,Depends
-from app.models_pydantic_structures.water_structure import *
-from app.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
-from app.models_data_base_structures.tab_notification import Notification_tab
-from app.models_data_base_structures.tab_maintenence_data import MaintenenceData_tab
-from app.infrastructure.database import get_db
-from app.db_access_layer.db_mid_layer import RepositoryWaterTank, RepositoryWaterTankFeatures,\
+from Backend_core.models_pydantic_structures.water_structure import *
+from Backend_core.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
+from Backend_core.models_data_base_structures.tab_notification import Notification_tab
+from Backend_core.models_data_base_structures.tab_maintenence_data import MaintenenceData_tab
+from Backend_core.infrastructure.database import get_db
+from Backend_core.db_access_layer.db_mid_layer import RepositoryWaterTank, RepositoryWaterTankFeatures,\
         RepositoryNotification_tab, RepositoryMaintenenceData, SQLAlchemyRepository
-from app.mappers.map_water_tanks_structures import Mapper_WaterTanks,Mapper_TankFeatures
+from Backend_core.mappers.map_water_tanks_structures import Mapper_WaterTanks,Mapper_TankFeatures
 from sqlalchemy.orm import Session
 import datetime,uuid
 
@@ -42,22 +42,26 @@ def switch_specific_attr(repo:SQLAlchemyRepository,tank_tag:str,attr_name: str) 
 @router.get("/addtwodefaulttank")
 def add_two_tanks_and_features(db:Session = Depends(get_db)):
     repo = RepositoryWaterTank(db)
-    wt1=db_WaterTanks(tank_tag='test_tank_id1',
+    wt1=db_WaterTanks(tank_tag='t1',
                         name='my_test_tank',
                         capacity=10,
-                        owner='admin',
-                        status=0,
-                        valve_status=0)
+                        owner='admin')
     result =repo.add(wt1)    
-    wt2=db_WaterTanks(tank_tag='22344',
+    wt2=db_WaterTanks(tank_tag='t2',
                         name='my_test_tank',
                         capacity=10,
-                        owner='admin',
-                        status=0,
-                        valve_status=0)
+                        owner='admin')
     result2=repo.add(wt2)
-    wtf1=db_TanksFeatures(tank_tag='test_tank_id1')
-    wtf2=db_TanksFeatures(tank_tag='22344')
+    wtf1=db_TanksFeatures(tank_tag='t1',
+                            water_tank_power=0,
+                            valve_status=0,
+                            details_sms_service_contact='123456789',
+                            details_email_service_contact='my_tank1@gmail.com')
+    wtf2=db_TanksFeatures(tank_tag='t2',
+                            water_tank_power=0,
+                            valve_status=0,
+                            details_sms_service_contact='234567891',
+                            details_email_service_contact='my_tank2@gmail.com')
     repo_wtf=RepositoryWaterTankFeatures(db)
     repo_wtf.add(wtf1)
     repo_wtf.add(wtf2)    
@@ -68,8 +72,8 @@ def add_two_tanks_and_features(db:Session = Depends(get_db)):
     maitenence_wt2=repo_maitenence.add(MaintenenceData_tab(tank_tag=wtf2.tank_tag,
                                    correlation_id=uuid.uuid4().hex))    
     db.commit()
-    print(f"Log[{maitenence_wt1.correlation_id}][{wt1.tank_tag}] -WT and WTF created")
-    print(f"Log[{maitenence_wt2.correlation_id}][{wt2.tank_tag}] -WT and WTF created")
+    print(f"Log[{maitenence_wt1.correlation_id}][{wt1.tank_tag}] - WT and WTF created")
+    print(f"Log[{maitenence_wt2.correlation_id}][{wt2.tank_tag}] - WT and WTF created")
 
 @router.get("/showallfeatures",response_model=list[WaterTankFeatures])
 def get_show_all_water_containers_features(db:Session = Depends(get_db)):
@@ -106,7 +110,7 @@ def post_create_tank(watertank_creation:WaterTankCreation,db:Session = Depends(g
                     
         db.commit()   
         
-        #TODO: send info to kafka->('service_return_msg')-> kafka_api_front_printer 
+        #TODO: send info to kafka->('front_api_return_msg')-> kafka_api_front_printer 
         print(f"Log[{maintenence_wt.correlation_id}][{tank_db_to_add.tank_tag}] -WT and WTF created")
         return Mapper_WaterTanks.db_to_dta(to_return)
     
@@ -115,13 +119,13 @@ def post_create_tank(watertank_creation:WaterTankCreation,db:Session = Depends(g
         #TODO: log some error to logs not to user
         raise HTTPException(status_code=400, detail=f"Tank {dta_new_tank.name}: error during save")
 
-@router.get("/{tank_tag}/check_status",response_model=WaterTankStatusReturn)
-def get_tank_status(tank_tag:str,db:Session = Depends(get_db)):
-    db_wt=RepositoryWaterTank(db)
-    value_to_return =db_wt.get_specific_attr(tank_tag,'status')
-    if value_to_return is None:
-        raise HTTPException(status_code=400, detail=f"Tank: {tank_tag} do not exist")
-    return WaterTankStatusReturn(tank_tag=tank_tag, status=value_to_return)
+# @router.get("/{tank_tag}/check_status",response_model=WaterTankStatusReturn)
+# def get_tank_status(tank_tag:str,db:Session = Depends(get_db)):
+#     db_wt=RepositoryWaterTank(db)
+#     value_to_return =db_wt.get_specific_attr(tank_tag,'status')
+#     if value_to_return is None:
+#         raise HTTPException(status_code=400, detail=f"Tank: {tank_tag} do not exist")
+#     return WaterTankStatusReturn(tank_tag=tank_tag, status=value_to_return)
 
 @router.get("/{tank_tag}/getallfeatures",response_model=WaterTankFeatures)
 def get_tank_all_details(tank_tag:str,db:Session = Depends(get_db)):
@@ -135,16 +139,14 @@ def get_tank_all_details(tank_tag:str,db:Session = Depends(get_db)):
 @router.post("/{tank_tag}/switchoffswitchon",response_model=WaterTankStatusReturn)
 def post_tank_turnOff_turnOn(tank_tag:str,db:Session = Depends(get_db)):
     try:
-        db_wt=RepositoryWaterTank(db)
-        return_dict =switch_specific_attr(db_wt,tank_tag,'status')
-        notif = Notification_tab(tank_tag=tank_tag,kafka_msg_group='turnOnOff',field_changed="status",
+        db_wt=RepositoryWaterTankFeatures(db)
+        return_dict =switch_specific_attr(db_wt,tank_tag,'water_tank_power')
+        notif = Notification_tab(tank_tag=tank_tag,kafka_msg_group='water_tank_power',field_changed="turnOnOff",
                                 new_value=return_dict['next_value'],process_flag=-1,
                                 time_recive=datetime.datetime.now(datetime.timezone.utc),time_done=None)
         db_notifaction = RepositoryNotification_tab(db)
         db_notifaction.add(notif)
         db.commit()
-        #DONE: db_save->(pickup from db to transfer by app to kafka)->(turnOnOff)-> Service_turnOnOff 
-        #DONE: configmation -> ('service_return_msg')-> kafka_api_front_printer 
     except:
         db.rollback()
         if return_dict is None:
@@ -158,7 +160,7 @@ def post_feature_turnOff_turnOn(tank_tag:str,feature_name:str,db:Session = Depen
         return_dict = switch_specific_attr(db_wtf,tank_tag,feature_name)  
 
         #prepare notification action
-        notif = Notification_tab(tank_tag=tank_tag,kafka_msg_group=feature_name,field_changed="tufnOnOff",
+        notif = Notification_tab(tank_tag=tank_tag,kafka_msg_group=feature_name,field_changed="turnOnOff",
                                         new_value=return_dict['next_value'],process_flag=-1,
                                         time_recive=datetime.datetime.now(datetime.timezone.utc),time_done=None,
                                         service_data=None )
