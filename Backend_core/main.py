@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-import app.models_pydantic_structures as db_models
-from app.db_cfg import engine,Base
-from app.api.routers import tank_path
+import Backend_core.models_pydantic_structures as db_models
+from Backend_core.db_cfg import engine,Base
+from Backend_core.api.routers import tank_path
 from contextlib import asynccontextmanager
 import asyncio,json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -37,7 +37,7 @@ app.add_middleware(
 )
 active_connections: list[WebSocket] = []
 
-KAFKA_TOPIC_CONSUMER = ['service_return_msg']
+KAFKA_TOPIC_CONSUMER = ['front_api_return_msg','front_api_message_service']
 KAFKA_BOOTSTRAP_SERVER_CONSUMER ="kafka:29092"
 KAFKA_CONSUMER_CONFIG = {
     "bootstrap.servers": KAFKA_BOOTSTRAP_SERVER_CONSUMER,
@@ -45,10 +45,10 @@ KAFKA_CONSUMER_CONFIG = {
     "auto.offset.reset": "earliest"
 }
 
-def get_corr_id_from_headers(msg)-> str:
+def get_from_headers(msg,element_to_get)-> str:
     try:
-        header_dict ={k: v.decode('utf-8') for k,v in msg.headers}
-        return header_dict.get("corr_id")
+        header_dict ={k: v.decode('utf-8') for k,v in msg.headers()}
+        return header_dict.get(element_to_get)
     except:
         return None
                 
@@ -82,18 +82,19 @@ async def consume_kafka_callbacks():
     try:
         #it sit inbackground and if any msg appear from expected topic
         async for msg in consumer:
-            
+            in_data= msg.value.decode("utf-8")  
+            data = json.loads(in_data)
 
-            #convert main data( b -> string -> json)
-            event_data = json.loads(msg.value.decode('utf-8'))
+            #msg.headers  (("item",b'324234234'),("item",b'324234234'))
+            header_dict ={a:b.decode("utf-8") for a,b in msg.headers}
             
-            print(f"Log [{get_corr_id_from_headers(msg)}][{event_data['tank_tag']}]: Main to front:{msg.value.decode('utf-8')}",flush=True)
+            print(f"Log [{header_dict['corr_id']}][{header_dict['action_id']}][{data['tank_tag']}]: Main to front:{msg.value.decode('utf-8')}",flush=True)
 
             # /ws/logs have list about conencted browsers
             #and loop will send every browser msg from kafka
             for connection in active_connections:
                 try:
-                    asyncio.create_task(connection.send_json(event_data))
+                    asyncio.create_task(connection.send_json(data))
                 except Exception:
                     pass
     except Exception as e:

@@ -1,20 +1,12 @@
-# from app.models_pydantic_structures.water_structure import WaterTankFeatures
-# # client = TestClient(app)
-# #run from level above app : python -m pytest app/tests/test_api.py
-# #API tests - just paths, send request check http.status and answer resturn structure
-# from app.db_cfg import Base
-# from fastapi.testclient import TestClient
-# from app.infrastructure.database import get_db
-
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from app.api.routers import tank_path
-from app.db_cfg import Base
-from app.infrastructure.database import get_db
-from app.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
-from app.models_pydantic_structures.water_structure import WaterTankFeatures
+from Backend_core.api.routers import tank_path
+from Backend_core.db_cfg import Base
+from Backend_core.infrastructure.database import get_db
+from Backend_core.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
+from Backend_core.models_pydantic_structures.water_structure import WaterTankFeatures
 
 def test_create_water_tank(session_client_with_db):
     response = session_client_with_db.post("/tank/create/",
@@ -103,9 +95,9 @@ def test_check_if_features_for_tank_were_created(session_client_with_db):
     assert result.status_code ==200    
     result_data=result.json()
     assert result_data["tank_tag"] ==  "tank_004"
-    assert result_data["autofill"] ==   False
+    assert result_data["autofill_service"] ==   False
     assert result_data["sms_service"] ==   False
-    assert result_data["logger"] ==   False
+    assert result_data["logger_service"] ==   False
 
 def test_check_switchoffswitchon_for_tank(session_client_with_db):
     response = session_client_with_db.post("/tank/create/",

@@ -1,4 +1,4 @@
-from app.models_data_base_structures.tab_water_structure import db_WaterTanks,db_TanksFeatures
+from Backend_core.models_data_base_structures.tab_water_structure import db_WaterTanks,db_TanksFeatures
 from sqlalchemy import select
 
 
@@ -26,17 +26,17 @@ def test_water_tank_creation_save(db_test_session):
 def test_water_tank_features_data_creation_save(db_test_session):
     test_tank_id = 'test_tank_tag'
     tank_f = db_TanksFeatures(tank_tag=test_tank_id,
-                     autofill=0,
+                     autofill_service=0,
                      sms_service=0,
-                     logger=0)
+                     logger_service=0)
     db_test_session.add(tank_f)
     db_test_session.commit()
     
     query = select(db_TanksFeatures).where(db_TanksFeatures.tank_tag==test_tank_id)
     result =db_test_session.scalar(query)
     assert result.tank_tag==tank_f.tank_tag
-    assert result.autofill==tank_f.autofill
+    assert result.autofill_service==tank_f.autofill_service
     assert result.sms_service==tank_f.sms_service
-    assert result.logger==tank_f.logger
+    assert result.logger_service==tank_f.logger_service
 
     

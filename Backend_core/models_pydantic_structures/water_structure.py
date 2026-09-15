@@ -9,16 +9,23 @@ class WaterTankCreation(BaseModel):
 
 class WaterTankFeatures(BaseModel):
     tank_tag:str
-    autofill:bool =False
+    autofill_service:bool =False
     sms_service: bool =False
-    logger:bool =False
+    logger_service:bool =False
+    water_tank_power: bool = False
+    valve_status: bool = False
+    details_sms_service_contact: bool = False
+    details_email_service_contact: bool = False
 
     def __eq__(self, other):
-        if self.tank_tag == other.tank_tag and self.autofill == other.autofill and \
-            self.sms_service == other.sms_service and self.logger == other.logger:
+        if self.tank_tag == other.tank_tag and self.autofill_service == other.autofill_service and \
+            self.sms_service == other.sms_service and self.logger_service == other.logger_service and \
+            self.water_tank_power == other.water_tank_power and self.valve_status == other.valve_status and \
+            self.details_sms_service_contact == other.details_sms_service_contact and self.details_email_service_contact == other.details_email_service_contact:
             return True
         else:
             return False
+
 
 
 class WaterTankOneFeatureStatus(BaseModel):
@@ -31,13 +38,10 @@ class WaterTank(BaseModel):
     name:str
     capacity:int
     owner:str
-    status:int =0
-    valve_status:int = 0
 
     def __eq__(self, other):
         if self.tank_tag == other.tank_tag and self.name == other.name and \
-            self.capacity == other.capacity and self.owner == other.owner and \
-            self.status == other.status and self.valve_status == other.valve_status:
+            self.capacity == other.capacity and self.owner == other.owner:
             return True
         else:
             return False 

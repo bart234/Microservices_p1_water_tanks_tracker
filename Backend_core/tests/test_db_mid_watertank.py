@@ -1,5 +1,5 @@
-from app.db_access_layer.db_mid_layer import RepositoryWaterTank
-from app.models_data_base_structures.tab_water_structure import db_WaterTanks
+from Backend_core.db_access_layer.db_mid_layer import RepositoryWaterTank
+from Backend_core.models_data_base_structures.tab_water_structure import db_WaterTanks
 
 
 class TestWaterTank:

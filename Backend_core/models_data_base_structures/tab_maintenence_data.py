@@ -1,5 +1,5 @@
 from sqlalchemy import Column,Integer,String
-from app.db_cfg import Base
+from Backend_core.db_cfg import Base
 
 class MaintenenceData_tab(Base):
     __tablename__='maitenence_data'

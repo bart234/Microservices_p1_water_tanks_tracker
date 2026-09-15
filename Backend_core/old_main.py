@@ -1,5 +1,5 @@
 # import time
-# from misc.logger_decorator import *
+# from misc.logger_service_decorator import *
 # from models_data_structures.Water_structure import *
 
 
@@ -62,13 +62,13 @@
 #     def __init__(self):
 #         self._handler = {}
 
-#     @bus_logger(log_type="event")
+#     @bus_logger_service(log_type="event")
 #     def add_subscribtion_event(self,event_type,handler):
 #         if event_type not in self._handler:
 #             self._handler[event_type]=[]
 #         self._handler[event_type].append(handler)
 
-#     @bus_logger(log_type="data")
+#     @bus_logger_service(log_type="data")
 #     def publish(self,event):
 #         event_type = type(event)
 #         one_type_handler = self._handler.get(event_type)    #it takes all expected subscribers (added before) -mosty their metod to run

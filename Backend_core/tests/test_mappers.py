@@ -1,6 +1,6 @@
-from app.mappers.map_water_tanks_structures import Mapper_WaterTanks,Mapper_TankFeatures
-from app.models_data_base_structures.tab_water_structure import db_WaterTanks,db_TanksFeatures
-from app.models_pydantic_structures.water_structure import WaterTank,WaterTankFeatures
+from Backend_core.mappers.map_water_tanks_structures import Mapper_WaterTanks,Mapper_TankFeatures
+from Backend_core.models_data_base_structures.tab_water_structure import db_WaterTanks,db_TanksFeatures
+from Backend_core.models_pydantic_structures.water_structure import WaterTank,WaterTankFeatures
 
 
 def get_watertank_db_obj()->db_WaterTanks:
@@ -26,17 +26,17 @@ def get_watertank_dta_obj()->WaterTank:
 def get_tank_feature_db_obj()->db_TanksFeatures:
     test_tank_id = 'test_tank_tag'
     tank_f = db_TanksFeatures(tank_tag=test_tank_id,
-                     autofill=0,
+                     autofill_service=0,
                      sms_service=1,
-                     logger=0)
+                     logger_service=0)
     return tank_f
 
 def get_tank_feature_dta_obj()->WaterTankFeatures:
     test_tank_id = 'test_tank_tag'
     tank_f = WaterTankFeatures(tank_tag=test_tank_id,
-                     autofill=False,
+                     autofill_service=False,
                      sms_service=True,
-                     logger=False)
+                     logger_service=False)
     return tank_f
 
 def test_mapper_watertank_dta_to_db():

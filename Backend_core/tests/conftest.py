@@ -1,13 +1,13 @@
 from fastapi.testclient import TestClient
 import pytest
-from app.api.routers import tank_path
 from fastapi import FastAPI
-from app.db_cfg import Base
-from app.infrastructure.database import get_db
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
-from app.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
+from Backend_core.api.routers import tank_path
+from Backend_core.db_cfg import Base
+from Backend_core.infrastructure.database import get_db
+from Backend_core.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
 
 app_for_test = FastAPI()
 app_for_test.include_router(tank_path.router)
@@ -78,24 +78,24 @@ def data_for_test_created_by_api(session_client_with_db):
 def add_dummy_wtf_to_db(session_db):
     test_tank_id = 'test_tank_fixtures'
     wtf = db_TanksFeatures(tank_tag=test_tank_id,
-                    autofill=0,
+                    autofill_service=0,
                     sms_service=0,
-                    logger=0)
+                    logger_service=0)
     session_db.add(wtf)
     session_db.commit()
 
     test_tank_id = 'test_tank_fixtures_2nd'
     wtf2 = db_TanksFeatures(tank_tag=test_tank_id,
-                    autofill=0,
+                    autofill_service=0,
                     sms_service=0,
-                    logger=0)
+                    logger_service=0)
     session_db.add(wtf2)
     session_db.commit()
 
     test_tank_id = 'test_tank_fixtures_3rd'
     wtf3 = db_TanksFeatures(tank_tag=test_tank_id,
-                    autofill=0,
+                    autofill_service=0,
                     sms_service=0,
-                    logger=0)
+                    logger_service=0)
     session_db.add(wtf3)
     session_db.commit()
