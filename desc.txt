@@ -32,7 +32,13 @@ todo: tests - prepate e2e test on all modules on github actions
 
 
 
-
+stage 15:
+done(git work):- rename repo
+todo:
+   plan fight: (now) - everything is in main, pushed at once
+      (will be) - monorepo will stay, each service will have diffrent feature/<service> branch
+                  each branch will create pr, and will be manually merged after tests(not yet set) 
+                
 stage 14:
 done(notif_center): tests: test_cases for main case
 done(notif_center): tests: test_cases for real kafka symulation

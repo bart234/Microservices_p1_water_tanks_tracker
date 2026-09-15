@@ -114,7 +114,6 @@ services:
       #client from docker network see diffrent thing - so it have to connect to INTERNAL://kafka:29092
       #other container see each other on docker on labels = container name , here "kafka"
       #if fast api will ask "where should I send my messages?" answer is "kafka:29092"
-      #extrnal access if from phisical machine , like browser so it will be localhost
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092, EXTERNAL://localhost:9092
 
       #it is information for other brokers (if I have more then 1)
