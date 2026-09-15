@@ -1,95 +1,188 @@
-T
+target: 
+have some simple front, 1th login screen , 2nd tank managment screen
+add user - user authenticate to system
+user can add tank - specify it parameters nad features
+tank will be launched - another containers with sensors will be spown
+based on input data conatiner like - depth-sensor will be launch and will update info
+to table and sms
+sms and email can be disabled , 
+testing, logging, container spowining, auth - in microservices app
 
-ODO: stage 5
-move all to containers, configure it and mak it wokr together
 
-add some testss
-add listening server which will display all logs
-add api: where will be some controll
 add simple front to have  visual controll - with current status of water level
-add db: to save tank water level
-add more tanks
+todo: rething how to test everything
+todo: add additional services
+too: refactor names in api
+todo: think what to do with text files about db auth db_texts -> to json?
+todo: think about front to controll that api (simple buttons, logs on botm,)
+
+todd: unify tables (what to do with status and valve_open - move to features?)
+
+todo: start to push each part with version and service name
+todo: tests -  basic one for container - unit tests + integration test  + test for internal logic 
+todo: tests - send tests to github action, prepare github action for each module and prepare action for all of them
+todo: tests - add kafka from container to sumulate kafka msgsb(testcontainers.kafka testcontainers )
+todo: tests - prepate e2e test on all modules on github actions
+
+#ONE THING AT TIME
+#FINISH BASIC STEP 
+#no front -only api, 
+#do cicd and tests for all services
+#services online crate water tank - get it online/offline, set on/off services sms_notification (other without impact)
 
 
 
-TODO:stage 4:
-add kafka betweeen, add flask server ad small api to send msg
-adjust all to use kafka 
-run all on kafka container 
+
+stage 14:
+done(notif_center): tests: test_cases for main case
+done(notif_center): tests: test_cases for real kafka symulation
+done(notif_center): tests: test_cases mock for kafka
+done: all actions will trigger kafka msg log to front - that msg isnot saved anywhere
+done: if sms/email service online - each water tank on/off will launch msg
+
+stage 13:
+done(notif_center): rename structures for kafka events from above: SERVICE_RETURN_MSG
+done(notif_center): refactor and modify structure for kafka event , prepare generic class to use 
+done: transfer information about action which was done - to sms service , currently  data on front-api dont have data about base event which trigger that sms_event
+done: check do we need corr_id in redis ?
+done(notif_center): some test were prepared
+done(sms_service): name unified
+done(notif_center): refactor from services to working function
+
+stage 12:
+done(notif_center): remodel all loose db part  in service_notification_center into structures
+done: to avoid catching api returning event from sms/emal by notification center , another topick will be added to sms/email services (message_service)
+done: add additional topic to api_async_front kafka to catch  sms/email services (message_service)
+done: prepare graph with kafka topicks sent between 
+done: rename topics which are goting to front_api: service_return_msg -> front_api_return_msg,message_service -> front_api_message_service
+done(notif_center): add templates of kafka - in/out  messages 
+done: unify kafka msg content to be managable (turnoffon have diffrent data on some fields)
+
+    Service: api ---->(action saved in db) ----> Service: DB_to_kafka ----> (2 topics)                  
+                                                                               |
+                                                                               |
+          -----------    Service:TurnOnWaterTank <----- (water_tank_power) -----                            Sample how it works for TurnOnWaterTank:   
+          |                                                                    |                            - Service DB_to_kafka crate 2 topics: 1th-service-custom, 2nd-notification-service        
+          |                                                                    |                            - if service have flag online - events will be catched by Noitif Center            
+          |                                                                    |                              and message wil  be send to online services
+          |                                                                    |                            -Service kafka flag (water_tank_power) is a column in table tank_features            
+          |                                                          (notification_service)                 -Notification Center chack if for that tank_id messages service as are online            
+          |                                                                    |                                      if does - it send sms/email about each action
+          |                                                                    |                                      if not nothing happen, only temp log on api
+          |                                                        -------------                            -Return kafka event from message servicess is diffrent to avoid cath by Notification Center    
+          |                                                        |                                      
+          |                                                        |                                      
+          |                                                        ▼                 --------(sms_service.message)  ----------> Service: Send_SMS        
+ (front_api_return_msg)  ----------------------------->  Service: Notification Center  --------(email_service.message)----------> Service: Send_Email                       
+          |                                                                                                                             |      
+          |                                                                                                                             |
+          ▼                                                                                                                             |  
+  Service: front_api   <-------------------------------------------- (message_service) --------------------------------------------------                                                          
+
+
+
+stage 11:
+refactor: api - tables - status moved to table feature and renamed as water_tank_power, valve_status also moved
+          api - tables - concact data added to feature table with prefix details_, services all have suffix "_service"
+          db layers, api itself and other code was change to adjust these changes
+          notification_center - models - for db and db_acces_layer - just copy,models for kafka in/out data - added
+          notification_center - models - for kafka and redis 
+          notification_center - refactoring whole process, and encapsulate process in one class
+          fix: issue with get_path - txt file did not exist in linux, extension dissapear during copied win->linux
+
+stage 10:
+done:change notification title for kafka-msg_group for water_tank from turnOnOff on water_tank_power, and field turnOnOff
+done: remove corr_id from kafka_data and keep it all the time in header,move header between 
+done: refactor all services to have something like template to work with
+done: 
+  -after brain storm with ai and its idees I decide to create mine own solution
+  -I will create general notification_service, it will listen topics about changes where can be notificaiton, and topics to api
+    (it will not require to significatn chagnes current code). Process: wt will be turnon - base topic will go there, second one - with same data 
+    to general_notificaiton, gen_not will check in db what notificaiton are enabled to that tank_id, if none - it will forget tank_id,
+    if it does some notification - it will keep that tank_tag in memory , and will listening api return msg - we will parr it by corr_id
+    if it parr - gen_not will check what notification will be send (besed on db data) and will make event to that kind of service
+    TOCATCH(done):  few fast turnonof behaviour (it looks like mechanism for that was done on  db_to_kafka_service),
+    TOCATCH(db have expire time on records):  parring and forgetting tank, 
+    ADDITIONAL(done): generate action_id and insert it into headers
+
+                    ┌──► [Kafka: turnOnOff] ───────────────► [Serwis turnOnOff]
+                    │                                                 │
+  [db_to_kafka] ────┤                                        (Wysyła callback)
+                    │                                                 │
+                    └──► [Kafka: notification_intent]                 ▼
+                                  │                      [Kafka: front_api_return_msg]
+                                  ▼                                   │
+                      [general_notification_service]                  │
+                                  │                                   │
+                      (Check DB: if SMS=ON)                          │
+                                  │                                   │
+                                  ▼                                   │
+                      (Save temp to Redis at corr_id)                 │
+                                  │                                   │
+                                  └───◄  (catch cpoy of msg for api)──┘
+                                  │
+                          (Matching bosth if exist)
+                                  │
+                                  ▼
+                      [Kafka: send_sms_topic] ──► [sms_notification service]
+
+stage 9:
+done: add logs id's, add new table with corr_id,  pass that id trough kafka by header injection to services
+done: refactor in services
+done: add that corr_id to log naming to have clear path about action on that id
+
+stage 8:
+after whole app was set and configure, test for api failed at all.
+They required to craete other FastAPI instance, override dependency on tank uri 
+by new db function withh active db session and transfer that session to app.
+All fixtures were rewrite, i separate db session , and app+db session
+done: change front to be more responsive, in current state it get kafka messages only sometimes
+
+stage 7
+new ideea: add Feedback Loop - message back loop, end_service produce event for kafka
+  and kafka will send that to api, which will wait for that in async def
+  api will catch that and will push that to front where that will be displayed as logs
+  on front
+done: simple front generated by ai
+done: feedback loop done, conencted to front by WebSockets
+done: kafka set on sms service(p+c) , async kafka on api (c) 
+
+stage 6:
+new ideea: add Transactial Outbox - new table in db, with notification, 
+  notification have text-tank-tag-status, each service_on will trigger new notification in table
+  table will be question about new notification with staus - waiting 
+  app will read that and will create kafka request to external service 
+  + service change will stigger when independed app will transfer it into kafka
+  + fix in mid layer, commit correctly moved into api layer
+done: db_models import fixed
+done: table_notification done  
+done: service_db_to_kafka (Transactial Outbox) and succesfully configured, works 
+
+stage 5:
+done: move all to containers (api, db-postgress, adminer), configure it and mak it wokr together
+done: db - cred from files, loaded to app troough files and env_variables
+done:test e2e done: api, db, mid_layer_db,dta_obj
+done: add db: to save tank water level
+done: add more tanks
+
+stage 4:
+add flask, add api :
+  create tank id-name-capacity
+  check tank status (on/off)
+  check tank water level (precentage)
+  open  water flow ( water should increase)
+  close water flow (water flow stop)
+  set auto-open, set auto-close
 
 stage 3:
-logger_decorator done
+logger_service_decorator done
 additional setting added to decorator
 decorator is custom to function
+(as I know now, microservices do not use logs that way so it will be obsolete)
 
 stage 2:
 additional events added, 
-add logging , custom loggerFormat to save 
+add logging , custom logger_serviceFormat to save 
 
 stage 1:
 new app EDA - some simple bus, simple events to tests and check
-
-
-LISTENENIG SERVER
-Oto gotowe, minimalistyczne rozwiązanie oparte na Dockerze i języku Python. Pozwala ono przechwytywać ruch sieciowy wysyłany z jednego kontenera i natychmiast wyświetlać go na ekranie (w konsoli) drugiego kontenera.Najprostszą i najbardziej niezawodną metodą jest uruchomienie prostego serwera HTTP (np. na porcie 5000), na który drugi kontener będzie kierował swoje zapytania.1. Kod serwera nasłuchującego (server.py)Utwórz plik o nazwie server.py. Ten skrypt uruchomi serwer, który odbierze każde zapytanie POST i wypisze jego zawartość w konsoli.pythonfrom http.server import BaseHTTPRequestHandler, HTTPServer
-
-class LogRequestHandler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        # Odczytanie długości danych
-        content_length = int(self.headers['Content-Length'])
-        # Pobranie zawartość body zapytania
-        post_data = self.rfile.read(content_length).decode('utf-8')
-        
-        # Nagłówek w konsoli serwera
-        print(f"\n--- ODEBRANO RUCH Z: {self.client_address[0]} ---")
-        print(f"Ścieżka: {self.path}")
-        print(f"Dane: {post_data}")
-        print("-" * 40)
-        
-        # Odpowiedź do kontenera wysyłającego
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"OK")
-
-def run():
-    server_address = ('0.0.0.0', 5000)
-    httpd = HTTPServer(server_address, LogRequestHandler)
-    print("Serwer uruchomiony. Nasłuchiwanie na porcie 5000...")
-    httpd.serve_forever()
-
-if __name__ == '__main__':
-    run()
-Używaj kodu z rozwagą.2. Konfiguracja Docker Compose (docker-compose.yml)Najłatwiej połączyć kontenery za pomocą Docker Compose. Tworzy on wspólną sieć, dzięki czemu kontenery widzą się nawzajem po nazwach usług.Utwórz plik docker-compose.yml w tym samym katalogu:yamlversion: '3.8'
-
-services:
-  # Kontener odbiorcy (nasz serwer)
-  odbiorca:
-    image: python:3.10-slim
-    volumes:
-      - ./server.py:/server.py
-    command: python -u /server.py
-    # Opcja '-u' wymusza natychmiastowe wypisywanie logów na ekran bez buforowania
-    ports:
-      - "5000:5000"
-
-  # Kontener nadawcy (symuluje ruch z innego kontenera)
-  nadawca:
-    image: alpine
-    depends_on:
-      - odbiorca
-    # Wysyła testowy pakiet co 5 sekund do kontenera "odbiorca"
-    command: >
-      sh -c "apk add --no-cache curl &&
-             while true; do
-               curl -X POST -d '{\"status\": \"dziala\", \"wiadomosc\": \"Czesc z drugiego kontenera!\"}' http://odbiorca:5000/test-endpoint;
-               sleep 5;
-             done"
-Używaj kodu z rozwagą.3. Jak to uruchomić i testować?Umieść pliki server.py oraz docker-compose.yml w jednym folderze.Uruchom środowisko poleceniem:bashdocker-compose up
-Używaj kodu z rozwagą.W konsoli natychmiast zobaczysz logi. Serwer przechwyci ruch z kontenera nadawca i wyświetli go w czytelny sposób:textodbiorca_1  | Serwer uruchomiony. Nasłuchiwanie na porcie 5000...
-odbiorca_1  | 
-odbiorca_1  | --- ODEBRANO RUCH Z: 172.18.0.3 ---
-odbiorca_1  | Ścieżka: /test-endpoint
-odbiorca_1  | Dane: {"status": "dziala", "wiadomosc": "Czesc z drugiego kontenera!"}
-odbiorca_1  | ----------------------------------------
-Używaj kodu z rozwagą.Alternatywa (gdy nie możesz modyfikować kodu nadawcy)Jeśli kontener nadawcy wysyła ruch w świat, a Ty chcesz go podglądać po cichu (sniffer pakietów), powyższy serwer HTTP nie wystarczy. W takim wypadku najlepiej uruchomić kontener z narzędziem tcpdump podpiętym pod sieć drugiego kontenera:bashdocker run --rm -it --net=container:<NAZWA_KONTENERA_NADAWCY> nicolaka/netshoot tcpdump -A -vv port 80
-Używaj kodu z rozwagą.Ta komenda wyświetli na ekranie każdy pakiet tekstowy przechodzący przez wskazany kontener na porcie 80.Jeżeli chcesz dostosować to rozwiązanie do swojego projektu, daj mi znać:W jakim języku/technologii działa Twój istniejący kontener?Czy kontener-nadawca wysyła ruch HTTP, czy jest to inny protokół (np. gRPC, WebSockets, surowe pakiety TCP/UDP)?
