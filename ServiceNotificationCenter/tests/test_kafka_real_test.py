@@ -15,7 +15,7 @@ class TestNotificationCenterProcess_KafkaInstance:
         #producer is orginal 
         #consumer is test-one
 
-        # ---------------------- general kafka address --------- ----------
+        # ---------------------- general kafka address ------------------
         KAFKA_SERVER_ADDRESS = kafka_container
         #------------------------------------------------------------------
 
