@@ -1,0 +1,48 @@
+name: Microservices CI pipeline v0.0.1
+
+on:
+    push:
+        branches:
+            - 'feature/**'
+            - main
+
+jobs:
+    #it setting  variable about which branch was changed and which run shoule be run
+    changes-detection:
+        runs-on: ubuntu-latest
+        outputs: 
+            flag_notification_center: ${{ steps.filter_for_dorny.outputs.notification_center_check_result }}
+        steps:
+            - uses: actions/checkout@v4
+            #it track changes in commit
+            - uses: dorny/paths-filter@v3   
+              id: filter_for_dorny
+              with: 
+                filters: |
+                    notification_center_check_result:
+                        - 'ServiceNotificationCenter/**'
+    
+    #proper test cases
+    test-notification-center:
+        needs: changes-detection
+        if: ${{ needs.changes-detection.outputs.flag_notification_center == 'true'}}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Repo checkout 
+              uses: actions/checkout@v4
+              
+            - name: py init
+              uses: actions/setup-python@v5
+              with:
+                python-version: '3.12'
+                cache: 'pip'
+            
+            - name: py packages
+              run: |
+                python -m pip install --upgrade pip
+                if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+            
+            - name: Run pytest
+              run: |
+                 cd  ServiceNotificationCenter
+                 pytest
