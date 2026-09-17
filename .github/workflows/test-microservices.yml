@@ -7,7 +7,7 @@ on:
             - main
 
 jobs:
-    #it setting  variable about which branch was changed and which run shoule be run
+    #it setting  variable about which branch was changed   and which run shoule be run
     changes-detection:
         runs-on: ubuntu-latest
         outputs: 
@@ -43,6 +43,8 @@ jobs:
                 python -m pip install -r ServiceNotificationCenter/requirements.txt --user || true
             
             - name: Run pytest
+              env:
+                PYTHONPATH: .
               run: |
                  cd  ServiceNotificationCenter
-                 pytest
+                 python -m pytest
