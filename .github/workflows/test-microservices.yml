@@ -44,7 +44,6 @@ jobs:
             
             - name: Run pytest
               env:
-                PYTHONPATH: .
+                PYTHONPATH: ${{ github.workspace }}
               run: |
-                 cd  ServiceNotificationCenter
-                 python -m pytest
+                 python -m pytest ServiceNotificationCenter/
