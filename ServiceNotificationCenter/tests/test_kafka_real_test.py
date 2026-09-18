@@ -75,9 +75,9 @@ class TestNotificationCenterProcess_KafkaInstance:
         assert msg.error() is None
 
         extract_data =json.loads(msg.value().decode("utf-8"))
-        extract_data['kafka_topic'] = 'sms_service.message'
-        extract_data['base_action'] = r_data_input['kafka_topic']
-        extract_data['tank_tag'] = r_data_input['tank_tag']
-        extract_data['field_to_update'] = r_data_input['field_to_update']
-        extract_data['new_value'] = r_data_input['new_value']
-        extract_data['contact'] = r_data_input['additional_data']
+        extract_data['kafka_topic'] ==      'sms_service.message'
+        extract_data['base_action'] ==      r_data_input['kafka_topic']
+        extract_data['tank_tag'] ==         r_data_input['tank_tag']
+        extract_data['field_to_update'] ==  r_data_input['field_to_update']
+        extract_data['new_value'] ==        r_data_input['new_value']
+        extract_data['contact'] ==          r_data_input['additional_data']
