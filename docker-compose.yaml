@@ -66,10 +66,20 @@ services:
     environment:      
       REDIS_HOST: inf_redis
       REDIS_PORT: 6379
+      REDIS_TIME_TO_EXPIRE_KEY: 20
+      KAFKA_WAIT_TIME_BETWEE_POOLS: 1
+      KAFKA_SERVER_ADDRESS: kafka:29092
+      KAFKA_INCOMING_TOPICS: notification_service,front_api_return_msg  
+      KAFKA_GROUP_ID: NotificationCenter.id      
+      KAFKA_TOPIC_TEMPLATE: topic.message
       POSTGRES_USER_FILE: /run/secrets/db_user              
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-      POSTGRES_DB_LOCALHOST: /run/secrets/db_localhost       # db
-      POSTGRES_DB_FILE: /run/secrets/db_postgres_db   
+      POSTGRES_DB_LOCALHOST_FILE: /run/secrets/db_localhost       # db
+      POSTGRES_DB_FILE: /run/secrets/db_postgres_db  
+      POSTGRES_USER: postgress_user
+      POSTGRES_PASSWORD: postgres_password 
+      POSTGRES_DB_LOCALHOST: db
+      POSTGRES_DB: postgress
 
     secrets:
       - db_password
