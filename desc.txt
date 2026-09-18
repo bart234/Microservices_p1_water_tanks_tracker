@@ -30,9 +30,27 @@ todo: tests - prepate e2e test on all modules on github actions
 #do cicd and tests for all services
 #services online crate water tank - get it online/offline, set on/off services sms_notification (other without impact)
 
+#todo: water_tank_on_off - should send back to api info about past action mean (water_tank_power) - current info for api does not know nothing about  
+    what event send that data
+todo: variable in docker-compose - POSTGRES_DB_LOCALHOST should be swithced to -> POSTGRES_DB_LOCALHOST_FILE 
+todo_fix(sms_service): when tank is online, and we turn ON sms-service - there is no confirmation about that action - noinfo in api, no info on sms
+
+stage 16:
+done(notification-center): switch setting and cfg from hardcosed elements to sys_variable  
+todo: add sys_varible to docker-compose and github actions
+todo(service_sms): got template form notification-center, adjust it, refactor all service , add all kind of tests
+todo: set tags for each  branch - not general one
+todo: white more tests do other modules
+todo: create  test for all process like - create tank - tank switch on + tank sms service off,tank switch on + tank sms service on
+            prepare that on dictionary and models in/out for each service with 
+
+
 
 stage 15:
 recovery: after git pulled outdated version
+done: send everything to github with diffrent branches 
+done(notification-center): adjust ci pipelines for existing tests
+done(notification-center): test - contract tests for 2x INNPU, 1x OUT
 
 stage 14:
 done(notif_center): tests: test_cases for main case
