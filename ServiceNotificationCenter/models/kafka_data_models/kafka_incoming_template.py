@@ -69,6 +69,9 @@ class KafkaIncomingTemplate[H,D](ABC):
 
     def get_data(self):
         return self.validated_values
+    
+    def get_data_as_dict(self):
+        return self.validated_values.model_dump()
 
     def get_data_as_binary(self):
         '''model to binary'''
@@ -76,6 +79,9 @@ class KafkaIncomingTemplate[H,D](ABC):
 
     def get_headers(self):
         return self.validated_header
+    
+    def get_headers_as_dict(self):
+        return self.validated_header.model_dump()
     
     def get_headers_as_tuple_for_kafka(self):
         '''model to list of tuples,second el is binary'''
