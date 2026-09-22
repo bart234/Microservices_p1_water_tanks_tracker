@@ -28,7 +28,13 @@ services:
     build: ./ServiceSMS
     container_name: service_sms
     volumes:
-      - ./ServiceSMS:/ServiceSMS
+      - ./ServiceSMS:/app/ServiceSMS
+    environment:
+      KAFKA_WAIT_TIME_BETWEE_POOLS: 1
+      KAFKA_SERVER_ADDRESS: kafka:29092
+      KAFKA_INCOMING_TOPICS: sms_service.message  
+      KAFKA_GROUP_ID: ServiceSMS.id     
+      KAFKA_TOPIC_TEMPLATE: front_api_message_service
     depends_on:
       kafka:
         condition: service_healthy
@@ -62,7 +68,7 @@ services:
     build: ./ServiceNotificationCenter
     container_name: service_notification_center
     volumes:
-      - ./ServiceNotificationCenter:/ServiceNotificationCenter
+      - ./ServiceNotificationCenter:/app/ServiceNotificationCenter
     environment:      
       REDIS_HOST: inf_redis
       REDIS_PORT: 6379

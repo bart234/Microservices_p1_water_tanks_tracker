@@ -8,6 +8,11 @@ to table and sms
 sms and email can be disabled , 
 testing, logging, container spowining, auth - in microservices app
 
+#ONE THING AT TIME
+#FINISH BASIC STEP 
+#no front -only api, 
+#do cicd and tests for all services
+#services online crate water tank - get it online/offline, set on/off services sms_notification (other without impact)
 
 add simple front to have  visual controll - with current status of water level
 todo: rething how to test everything
@@ -23,34 +28,37 @@ todo: tests -  basic one for container - unit tests + integration test  + test f
 todo: tests - send tests to github action, prepare github action for each module and prepare action for all of them
 todo: tests - add kafka from container to sumulate kafka msgsb(testcontainers.kafka testcontainers )
 todo: tests - prepate e2e test on all modules on github actions
+todo: add  src field to header - to each KE - to identify source of that event - on api there is issue to distinct which is from where
 
-#ONE THING AT TIME
-#FINISH BASIC STEP 
-#no front -only api, 
-#do cicd and tests for all services
-#services online crate water tank - get it online/offline, set on/off services sms_notification (other without impact)
+
 
 #todo: water_tank_on_off - should send back to api info about past action mean (water_tank_power) - current info for api does not know nothing about  
     what event send that data
 todo: variable in docker-compose - POSTGRES_DB_LOCALHOST should be swithced to -> POSTGRES_DB_LOCALHOST_FILE 
 todo_fix(sms_service): when tank is online, and we turn ON sms-service - there is no confirmation about that action - noinfo in api, no info on sms
 
-stage 16:
-done(notification-center): switch setting and cfg from hardcosed elements to sys_variable  
-todo: add sys_varible to docker-compose and github actions
-todo(service_sms): got template form notification-center, adjust it, refactor all service , add all kind of tests
 todo: set tags for each  branch - not general one
 todo: white more tests do other modules
 todo: create  test for all process like - create tank - tank switch on + tank sms service off,tank switch on + tank sms service on
             prepare that on dictionary and models in/out for each service with 
+todo: (front-api incoming event) - discrapencies in SMSService(1 field more) contract and WaterTank
+
+
+stage 16:
+done(tests vsc):fix: set pytest.ini and vsc.setting for all test in monorepo, each can read each service library
+done(notif-center): refactor tests, change libs pathing
+done(sms): refactor tests, change libs pathing
+todo: add sys_varible to docker-compose and github actions
+todo(service_sms): got template form notification-center, adjust it, refactor all service , add all kind of tests
 
 
 
 stage 15:
-recovery: after git pulled outdated version
+done:recovery: after git pulled outdated version
 done: send everything to github with diffrent branches 
 done(notification-center): adjust ci pipelines for existing tests
 done(notification-center): test - contract tests for 2x INNPU, 1x OUT
+done(notification-center): switch setting and cfg from hardcosed elements to sys_variable  
 
 stage 14:
 done(notif_center): tests: test_cases for main case
