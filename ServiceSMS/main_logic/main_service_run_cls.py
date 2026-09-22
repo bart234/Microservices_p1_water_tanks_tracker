@@ -3,6 +3,7 @@ from confluent_kafka import Consumer,Producer
 from ServiceSMS.models.kafka_data_models.kafka_incoming_data import KE_SmsService_IN
 from ServiceSMS.models.kafka_data_models.kafka_outgoing_data import KE_Front_Api_Message_Service_OUT
 
+
 class MainServiceRun:    
     def __init__(self):
         self._redis =           None
