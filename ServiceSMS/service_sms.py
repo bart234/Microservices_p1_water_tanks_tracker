@@ -1,107 +1,76 @@
 #TEMPLATE
-from confluent_kafka import Consumer,Producer
-from storage_for_function import get_from_headers,send_feedback_info
-import json
+from ServiceSMS.main_logic.main_service_run_cls import MainServiceRun
+from ServiceSMS.models.kafka_data_models.kafka_incoming_data import KE_SmsService_IN
+from ServiceSMS.models.kafka_data_models.kafka_outgoing_data import KE_Front_Api_Message_Service_OUT
+from ServiceSMS.parer_logic.sms_logic_creation import PrepareSMS
+
+from ServiceSMS.settings.kafka_in_out import kafka_in_cfg,kafka_out_cfg
+from ServiceSMS.settings.service_setting import service_setting
+from .storage_for_function import delivery_report
 import datetime
 
-service = 'sms_service.message'                 #topic
-service_name = 'SMS Notification'               #desc
-service_action_desc = "SMS Service-> Sent:"
-callback_desc = "SMS Service-> API:"           #not in use
-
-
-KAFKA_BOOTSTRAP_SERVER_CONSUMER ="kafka:29092"
-
-#INPUT:
-WAIT_TIME = 5      #time between pools
-KAFKA_TOPIC_CONSUMER = [service]
-KAFKA_CONSUMER_CONFIG = {
-    "bootstrap.servers": KAFKA_BOOTSTRAP_SERVER_CONSUMER,
-    "group.id": f'turnOnOff.{service}',
-    "auto.offset.reset": "earliest"}
-
-
-#OUTPUT:
-KAFKA_RETURN_TOPIC_FALLBACK_NOTIF = 'front_api_message_service'
-KAFKA_PRODUCER_CONFIG = {'bootstrap.servers': KAFKA_BOOTSTRAP_SERVER_CONSUMER}
-
-#INPUT data expected by consumer:
-#date: tank_tag, new_value , every fielde else will make no issue
-#header: corr_id in header
-
-#OUTPUT data send by producer:
-#{'kafka_topic': 'sms_service', 'tank_tag': 'test_tank_id1', 'field_to_update': 'turnOnOff', 'new_value': '1'}
-
-
-
 def main():     
-    consumer_ = Consumer(KAFKA_CONSUMER_CONFIG)
-    consumer_.subscribe(KAFKA_TOPIC_CONSUMER)   
-    print(f"Log: {service_name} service is running")   
+    run = MainServiceRun()
+
+    #load consumer and producer config from dict
+    run.load_settings_from_cfgs(None,kafka_in_cfg,kafka_out_cfg,service_setting)
+
+    #set consumer / consumer
+    run._set_kafka_consumer_cfg()
+    run._set_kafka_producer_cfg()
+
+    #get consumer
+    consumer_=run.get_kafka_consumer()
+
+    print(f"Log: {service_setting["service_name"]} service is running")   
     try:
         while True:
-            msg=consumer_.poll(float(WAIT_TIME))
+            msg=consumer_.poll(run.get_KAFKA_WAIT_TIME())
             if msg is None:
                 continue
             if msg.error():
                 print(f"Error msg: {msg.error()}")
                 continue
 
-            #collect data from mgs
-            in_data= msg.value().decode("utf-8")  
-            data = json.loads(in_data)
-            corr_id=get_from_headers(msg,"corr_id")
-            action_id=get_from_headers(msg,"action_id")
-            tank_tag = data['tank_tag']
-            action = data['base_action']
+            #gather data from kafka, validate 
+            incoming_event = KE_SmsService_IN()
+            incoming_event.from_msg(msg)
 
-            #action to do based on recived data
-            try:
-            #----------------------------------------------------------------------------------------------
+            #main logic: prepare and send sms
+            sms_object = PrepareSMS(incoming_event,service_setting["service_name"])
+            sms = sms_object.prepare_sms()
+            log_core = f"[{incoming_event.corr_id}][{incoming_event.action_id}][{incoming_event.tank_tag}]"
+            if sms_object.send_sms(sms):
+                print(f"Log {log_core}: {service_setting["service_name"]}: SMS Sent")
+            else:
+                print(f"Log {log_core} {service_setting["service_name"]}: SMS Error")
+                continue
 
-                if action == "water_tank_power":
-                    if data['field_to_update'] == "turnOnOff":
-                        # #add tank and its feature to sms services
-                        # sms_service_for.append(data['tank_tag'])
+            #prepare output KE and validate data
+            output_event=KE_Front_Api_Message_Service_OUT()
+            switch_dict_smsIN_to_FrontApiOUT = {"header":{'corr_id':incoming_event.corr_id,
+                                                          'action_id':incoming_event.action_id},
+                                                "data":{'service_time':(datetime.datetime.now(datetime.timezone.utc)).isoformat(),
+                                                        'tank_tag':incoming_event.tank_tag,
+                                                        'action':str(sms),
+                                                        'base_action': "SMS Sent"}}            
+            output_event.from_dict(switch_dict_smsIN_to_FrontApiOUT)
 
+            #prepare Log variable for producer callback_function
+            log_details = {'corr_id':incoming_event.corr_id,
+                            'action_id':incoming_event.action_id,
+                            'tank_tag':incoming_event.tank_tag,
+                            'log_description': run.service_setting['log_description']}
 
-                        print(f"SMS TO USER:  Tank:{data['tank_tag'] } is switch {'on' if data['new_value'] =='1' else 'off'}")
-                        
-                        msg_back = {'service_time':(datetime.datetime.now(datetime.timezone.utc)).isoformat(),
-                                    'tank_tag':data['tank_tag'],                                
-                                    f'action':f'{service} switch {'on' if data['new_value'] =='1' else 'off'}'}
-                    elif data['field_to_update'] == "message":
-                        msg_back = {'service_time':(datetime.datetime.now(datetime.timezone.utc)).isoformat(),
-                                    'tank_tag':data['tank_tag'],
-                                    f'action':f'message : {data['new_value']}'}
-                    else:
-                        msg_back = {'service_time':(datetime.datetime.now(datetime.timezone.utc)).isoformat(),
-                                                        'tank_tag':data['tank_tag'],
-                                                        f'action': None}
-                else:
-                    print(f"SMS TO USER:  Undefined action: {action}")
-                    msg_back = {'service_time':(datetime.datetime.now(datetime.timezone.utc)).isoformat(),
-                                                        'tank_tag':data['tank_tag'],                                
-                                                        f'action':f'Undefined action: {action}'}
-                
-            #----------------------------------------------------------------------------------------------
-            except Exception as e:
-                print(f"ERROR-Log [{corr_id}][{action_id}][{tank_tag}]: {service_name}: {e}")
+            #producer
+            run.send_messages_to_external_services(outcoming_event=output_event,
+                                                   kafka_event=run.kafka_out_cfg['KAFKA_TOPIC_PRODUCER'],
+                                                   callback_function_and_args=(delivery_report,log_details))            
 
-            #report about action done
-            print(f"Log [{corr_id}][{action_id}][{msg_back['tank_tag']}]: {service_name}:  {msg_back}")
-
-            #kafka -> api :report
-            send_feedback_info(producer_config=KAFKA_PRODUCER_CONFIG,
-                            kafka_topic=KAFKA_RETURN_TOPIC_FALLBACK_NOTIF,
-                            data_to_send_back=msg_back,
-                            header_content=msg.headers(),
-                            callback_desc=callback_desc,
-                            corr_id=corr_id,
-                            action_id=action_id)         
+     
 
     except KeyboardInterrupt:
-        print(f"Log: {service_name} service is stoping")
+        print(f"Log: {service_setting["service_name"]} service is stoping")
     finally:
         consumer_.close()
 
