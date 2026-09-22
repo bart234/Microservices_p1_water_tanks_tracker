@@ -1,30 +1,19 @@
-from functools import partial
-from confluent_kafka import Consumer,Producer
-import json
-
-def get_from_headers(msg,element_to_get)-> str:
-    try:
-        header_dict ={k: v.decode('utf-8') for k,v in msg.headers()}
-        return header_dict.get(element_to_get)
-    except:
-        return None
+import datetime
     
 def delivery_report(err,msg,**kwargs):
+    ''' kwargs expected: corr_id, action_id, tank_tag, callback_desc'''
+    main_msg_part = f"[{kwargs['corr_id']}][{kwargs['action_id']}][{kwargs['tank_tag']}]: {kwargs['callback_desc']}"
     if err: 
-        print(f"Log: Delivery error {err}")
+        print(f"Log {main_msg_part} Delivery error {err}",flush=True)
     else:        
         try:
-            print(f"Log [{kwargs['corr_id']}][{kwargs['action_id']}][{kwargs['tank_tag']}]: {kwargs['callback_desc']} Delivered",flush=True)
+            #ts_type:  TIMESTAMP_NOT_AVAILABLE ==0 / TIMESTAMP_CREATE_TIME ==1 / TIMESTAMP_LOG_APPEND_TIME ==2
+            #ts_ms #in miliseconds
+            ts_type, ts_ms = msg.timestamp()    
+            kafka_time_delivery = datetime.datetime.fromtimestamp(ts_ms / 1000.0, tz=datetime.timezone.utc).isoformat()
+            msg_size = len(msg)
+    
+            print(f"Log {main_msg_part} Delivered at {kafka_time_delivery} with size: {msg_size}",flush=True)
         except:
             print("Log ERROR: cannot parse args")
             
-def send_feedback_info(producer_config:dict[str,str],kafka_topic:str,data_to_send_back:dict[str,str],
-                       header_content=None,callback_desc=None,corr_id=None,action_id=None):
-    producer = Producer(producer_config)
-    bound_callback = partial(delivery_report,callback_desc=callback_desc,corr_id=corr_id,action_id=action_id,tank_tag=data_to_send_back['tank_tag'])
-    producer.produce(
-            topic=kafka_topic,
-            value=json.dumps(data_to_send_back).encode("utf-8"),
-            callback=bound_callback,
-            headers=header_content)
-    producer.flush()
