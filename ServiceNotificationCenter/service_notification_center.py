@@ -1,11 +1,11 @@
-from infrastructure.db_cfg import get_db
-from models.kafka_data_models.kafka_incoming_data import KE_Front_api_return_msg_IN,KE_Notification_service_IN
-from db_access_layer.db_mid_layer import RepositoryWaterTankFeatures
-from settings.redis_cfg import redis_cfg
-from settings.kafka_in_out import kafka_in_cfg,kafka_out_cfg,KAFKA_INCOMING_TOPICS
-from settings.service_setting import service_name
-from infrastructure.db_cfg import get_db
-from main_logic.notification_center_process import NotificationCenterProcess
+from ServiceNotificationCenter.infrastructure.db_cfg import get_db
+from ServiceNotificationCenter.models.kafka_data_models.kafka_incoming_data import KE_Front_api_return_msg_IN,KE_Notification_service_IN
+from ServiceNotificationCenter.db_access_layer.db_mid_layer import RepositoryWaterTankFeatures
+from ServiceNotificationCenter.settings.redis_cfg import redis_cfg
+from ServiceNotificationCenter.settings.kafka_in_out import kafka_in_cfg,kafka_out_cfg,KAFKA_INCOMING_TOPICS
+from ServiceNotificationCenter.settings.service_setting import service_name
+from ServiceNotificationCenter.infrastructure.db_cfg import get_db
+from ServiceNotificationCenter.main_logic.notification_center_process import NotificationCenterProcess
 NOTIFICATION_SERVICE = KAFKA_INCOMING_TOPICS[0]
 FRONT_API_RETURN_MSG = KAFKA_INCOMING_TOPICS[1]
 
