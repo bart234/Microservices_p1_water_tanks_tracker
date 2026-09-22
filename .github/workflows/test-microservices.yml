@@ -12,6 +12,7 @@ jobs:
         runs-on: ubuntu-latest
         outputs: 
             flag_notification_center: ${{ steps.filter_for_dorny.outputs.notification_center_check_result }}
+            flag_sms_service: ${{ steps.filter_for_dorny.outputs.sms_service_check_result }}
         steps:
             - uses: actions/checkout@v4
             #it track changes in commit
@@ -21,6 +22,8 @@ jobs:
                 filters: |
                     notification_center_check_result:
                         - 'ServiceNotificationCenter/**'
+                    sms_service_check_result:
+                        - 'ServiceSMS/**'
     
     #proper test cases
     test-notification-center:
@@ -42,8 +45,33 @@ jobs:
                 python -m pip install --upgrade pip
                 python -m pip install -r ServiceNotificationCenter/requirements.txt --user || true
             
-            - name: Run pytest
+            - name: Run pytest ServiceNotificationCenter
               env:
                 PYTHONPATH: ${{ github.workspace }}
               run: |
                  python -m pytest ServiceNotificationCenter/
+    
+    test-sms-service:
+        needs: changes-detection
+        if: ${{ needs.changes-detection.outputs.flag_sms_service == 'true'}} 
+        runs-on: ubuntu-latest
+        steps:
+            - name: Repo checkout 
+              uses: actions/checkout@v4
+              
+            - name: py init
+              uses: actions/setup-python@v5
+              with:
+                python-version: '3.12'
+                cache: 'pip'
+            
+            - name: py packages
+              run: |
+                python -m pip install --upgrade pip
+                python -m pip install -r ServiceSMS/requirements.txt --user || true
+
+            - name: Run pytest ServiceSMS
+              env:
+                PYTHONPATH: ${{ github.workspace }}
+              run: |
+                 python -m pytest ServiceSMS/
