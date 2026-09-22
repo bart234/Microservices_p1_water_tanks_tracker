@@ -1,5 +1,5 @@
 import pytest,datetime
-from models.kafka_data_models.kafka_incoming_data import KE_Notification_service_IN,KE_Front_api_return_msg_IN
+from ServiceNotificationCenter.models.kafka_data_models.kafka_incoming_data import KE_Notification_service_IN,KE_Front_api_return_msg_IN
 
 class FakeKafkaIncomingDataNotification:
     def __init__(self,fake_raw_values,fake_raw_header):

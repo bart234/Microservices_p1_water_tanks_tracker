@@ -1,8 +1,8 @@
 import pytest, json
 from testcontainers.community.kafka import KafkaContainer
 from confluent_kafka import Consumer
-from models.redis_data_models.redis_data_inout import R_Notification_data_INOUT
-from main_logic.notification_center_process import NotificationCenterProcess
+from ServiceNotificationCenter.models.redis_data_models.redis_data_inout import R_Notification_data_INOUT
+from ServiceNotificationCenter.main_logic.notification_center_process import NotificationCenterProcess
 
 @pytest.fixture(scope="session")
 def kafka_container():

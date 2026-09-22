@@ -1,7 +1,7 @@
 import redis
 from confluent_kafka import Consumer,Producer
-from models.kafka_data_models.kafka_out_data import KE_Contact_message_service_OUT
-from models.redis_data_models.redis_data_inout import R_Notification_data_INOUT
+from ServiceNotificationCenter.models.kafka_data_models.kafka_out_data import KE_Contact_message_service_OUT
+from ServiceNotificationCenter.models.redis_data_models.redis_data_inout import R_Notification_data_INOUT
 
 
 class NotificationCenterProcess:

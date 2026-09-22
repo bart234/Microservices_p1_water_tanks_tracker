@@ -1,11 +1,11 @@
 import json,datetime,pytest,os
-from models.kafka_data_models.kafka_incoming_data import KE_Notification_service_IN,KE_Front_api_return_msg_IN
-from models.kafka_data_models.kafka_out_data import KE_Contact_message_service_OUT
+from ServiceNotificationCenter.models.kafka_data_models.kafka_incoming_data import KE_Notification_service_IN,KE_Front_api_return_msg_IN
+from ServiceNotificationCenter.models.kafka_data_models.kafka_out_data import KE_Contact_message_service_OUT
 from .fake_kafka_class_template import FakeKafkaClassStructure
 
-test_data_KE_Notification_service= os.path.join('ServiceNotificationCenter','tests','contract_test_ke_notification_service.json')
-test_data_KE_Front_api_returnmsg= os.path.join('ServiceNotificationCenter','tests','contract_test_ke_front_api_return_msg.json')
-test_data_KE_Contact_message_service_OUT= os.path.join('ServiceNotificationCenter','tests','contract_out_test_ke_contact_message_service.json')
+test_data_KE_Notification_service= os.path.join('ServiceNotificationCenter','tests','contract_test_ke_notification_service_in.json')
+test_data_KE_Front_api_returnmsg= os.path.join('ServiceNotificationCenter','tests','contract_test_ke_front_api_return_msg_in.json')
+test_data_KE_Contact_message_service_OUT= os.path.join('ServiceNotificationCenter','tests','contract_test_ke_contact_message_service_out.json')
 
 def from_json_file_to_kafka_data_format(test_data_path:str):
     '''load data from json to dict,and convert these dicts to kafka format'''

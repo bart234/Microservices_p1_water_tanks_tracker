@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 from abc import ABC
 from typing import TypeVar,Type,Optional
-from models.kafka_data_models.kafka_incoming_template import KafkaIncomingTemplate
+from .kafka_incoming_template import KafkaIncomingTemplate
 import json
 
 #notification_service (data):
