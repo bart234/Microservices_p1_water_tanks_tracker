@@ -101,13 +101,17 @@ def main():
                     headers_list =[("corr_id",(corr_id).encode("utf-8")),
                                    ("action_id",(action_id).encode("utf-8"))]
                     bound_callback = partial(delivery_report,callback_desc=callback_desc,corr_id=corr_id,action_id=action_id,tank_tag=v['tank_tag'])
+                    print(f"Log [{v['corr_id']}][{action_id}][{v['tank_tag']}]: Data_out:{json.dumps(v).encode("utf-8")} Header_out:{headers_list}")
+
                     producer.produce(topic=v['kafka_topic'],
                                     value=json.dumps(v).encode("utf-8"),
                                     headers=headers_list,
                                     callback=bound_callback)
                
                     
-                    if v['kafka_topic'] in topic_list_for_notification_center:
+                    if v['kafka_topic'] in topic_list_for_notification_center:   
+                        
+                        print(f"Log [{v['corr_id']}][{action_id}][{v['tank_tag']}]: Notification center topics({topic_list_for_notification_center}): sent:{v['kafka_topic']}")                     
                         producer.produce(topic='notification_service',
                                         value=json.dumps(v).encode("utf-8"),
                                         headers=headers_list
