@@ -38,7 +38,6 @@ def main():
     print(f"Log: {service_name} service is running")   
     # try:
     while True:
-
         msg = run.get_kafka_consumer().poll(1.0)    
         if msg is None:
             continue
@@ -47,6 +46,7 @@ def main():
             continue
     
         #notification_service - send before some action was done   
+        print(f"Notification Center #501:tpoic recived: {msg.topic()}")
         if msg.topic() == NOTIFICATION_SERVICE:
             event_in = KE_Notification_service_IN()    
             event_in.from_msg(msg)        
@@ -83,16 +83,20 @@ def main():
                 print(f"Notification Center #636:[{event_in.corr_id}] [{event_in.action_id}]: msg services: {[dict_with_services_online.values()]} are ONLINE")                  
 
                 #add info about services to incoming data, and send it to redis
+                print(f"Notification Center #637:Redis dict: {event_in.corr_id}{event_in.action_id} , data: {event_in.get_data()}, additional_data:{dict_with_services_online}")
                 run.send_to_redis(unique_key=f'{event_in.corr_id}{event_in.action_id}',
                                 basic_service_data=event_in.get_data(),
                                 additional_data={'additional_data':dict_with_services_online})            
 
 
         elif msg.topic() == FRONT_API_RETURN_MSG:   
+
             event_in = KE_Front_api_return_msg_IN()  
-            event_in.from_msg(msg)   
+            event_in.from_msg(msg)  
+            print(f"Notification Center #700:[{event_in.corr_id}] [{event_in.action_id}]:return service msg found")
 
             #collect data from mgs   
+
             redis_data_py_model = run.get_from_redis(f"{event_in.corr_id}{event_in.action_id}")
             
             if redis_data_py_model is None:  
