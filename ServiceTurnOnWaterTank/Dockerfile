@@ -1,6 +1,6 @@
 FROM python:3.12-slim
-WORKDIR /ServiceTurnOnWaterTank
+WORKDIR /app
 COPY ./requirements.txt ./       
 RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-CMD ["python","-u","serviceTurnOnWaterTank.py"]
+COPY . ./ServiceTurnOnWaterTank
+CMD ["python","-u","-m","ServiceTurnOnWaterTank.service_main"]
