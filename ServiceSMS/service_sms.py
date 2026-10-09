@@ -52,8 +52,8 @@ def main():
                                                           'action_id':incoming_event.action_id},
                                                 "data":{'service_time':(datetime.datetime.now(datetime.timezone.utc)).isoformat(),
                                                         'tank_tag':incoming_event.tank_tag,
-                                                        'action':str(sms),
-                                                        'base_action': "SMS Sent"}}            
+                                                        'action': f"SMS Sent: {str(sms)}",
+                                                        'base_action': "sms_service"}}            
             output_event.from_dict(switch_dict_smsIN_to_FrontApiOUT)
 
             #prepare Log variable for producer callback_function
