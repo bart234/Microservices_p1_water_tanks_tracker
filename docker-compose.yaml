@@ -20,7 +20,15 @@ services:
     container_name: service_onoff_watertank
     volumes:
       - ./ServiceTurnOnWaterTank:/ServiceTurnOnWaterTank
+    environment:
+      KAFKA_WAIT_TIME_BETWEE_POOLS: 1
+      KAFKA_SERVER_ADDRESS: kafka:29092
+      KAFKA_INCOMING_TOPICS: water_tank_power  
+      KAFKA_GROUP_ID: water_tank_power.id     
+      KAFKA_TOPIC_OUTGOING: front_api_return_msg
     depends_on:
+      kafka:
+        condition: service_healthy
       app: 
         condition: service_started    
             
@@ -34,7 +42,7 @@ services:
       KAFKA_SERVER_ADDRESS: kafka:29092
       KAFKA_INCOMING_TOPICS: sms_service.message  
       KAFKA_GROUP_ID: ServiceSMS.id     
-      KAFKA_TOPIC_TEMPLATE: front_api_message_service
+      KAFKA_TOPIC_OUTGOING: front_api_message_service
     depends_on:
       kafka:
         condition: service_healthy

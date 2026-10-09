@@ -5,6 +5,8 @@ on:
         branches:
             - 'feature/**'
             - main
+        branches-ignore:
+            - 'feature/technical-settings'
 
 jobs:
     #it setting  variable about which branch was changed   and which run shoule be run
