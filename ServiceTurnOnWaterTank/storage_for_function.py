@@ -1,5 +1,5 @@
 from functools import partial
-from confluent_kafka import Consumer,Producer
+from confluent_kafka import Producer
 import json
 
 def get_from_headers(msg,element_to_get)-> str:
