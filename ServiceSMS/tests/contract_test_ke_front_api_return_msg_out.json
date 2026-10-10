@@ -1,0 +1,12 @@
+{
+    "values": {
+        "service_time": "2026-09-17T18:52:36.848608+00:00",
+        "tank_tag": "t1",
+        "action": "sms sent",
+        "base_action": "water_tank_power"
+    },
+    "headers": {
+        "corr_id": "00000000000000000000004",
+        "action_id": "40000000000000000000"
+    }
+}

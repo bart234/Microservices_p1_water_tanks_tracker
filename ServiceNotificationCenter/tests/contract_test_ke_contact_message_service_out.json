@@ -1,0 +1,14 @@
+{
+    "values": {
+        "kafka_topic": "sms_service",
+        "base_action": "water_tank_power",
+        "tank_tag": "t1",
+        "field_to_update": "turnOnOff",
+        "new_value": "0",
+        "contact": "123456987"
+    },
+    "headers": {
+        "corr_id": "00000000000000000000004",
+        "action_id": "40000000000000000000"
+    }
+}
