@@ -3,10 +3,9 @@ name: Microservices CI pipeline v0.0.1
 on:
     push:
         branches:
-            - 'feature/**'
+            - 'feature/**'            
+            - '!feature/technical-settings'
             - main
-        branches-ignore:
-            - 'feature/technical-settings'
 
 jobs:
     #it setting  variable about which branch was changed   and which run shoule be run
