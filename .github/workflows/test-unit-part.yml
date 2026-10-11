@@ -1,4 +1,4 @@
-name: Microservices unit-test pipeline
+name: Microservices unit-test pipeline v1
 
 on:
     push:
