@@ -7,7 +7,7 @@ from app.infrastructure.database import get_db
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
-from app.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
+from app.models.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
 
 app_for_test = FastAPI()
 app_for_test.include_router(tank_path.router)

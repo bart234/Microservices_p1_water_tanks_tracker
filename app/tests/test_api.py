@@ -13,8 +13,8 @@ from fastapi.testclient import TestClient
 from app.api.routers import tank_path
 from app.db_cfg import Base
 from app.infrastructure.database import get_db
-from app.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
-from app.models_pydantic_structures.water_structure import WaterTankFeatures
+from app.models.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
+from app.models.models_pydantic_structures.water_structure import WaterTankFeatures
 
 def test_create_water_tank(session_client_with_db):
     response = session_client_with_db.post("/tank/create/",
