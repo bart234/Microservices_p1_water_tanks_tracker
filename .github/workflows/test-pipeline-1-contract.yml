@@ -1,4 +1,4 @@
-name: Microservices CI pipeline v0.0.1
+name: Microservices pipeline-contract-test-1 pipeline v1
 
 on:
     push:
