@@ -86,7 +86,7 @@ jobs:
               ls -R ${{ env.SERVICE_DIR }}/tests/pipeline/in    
 
           - name: move file form zipped artifact folder to expected one
-            run: mv $SERVICE_DIR/tests/pipeline/in/water-tank-out-contract-001-step1/ServiceTurnOnWaterTank/tests/pipeline/out/contract_test_ke_front_api_return_msg_out.json $SERVICE_DIR/tests/pipeline/in/contract_test_ke_front_api_return_msg_in.json
+            run: mv $SERVICE_DIR/tests/pipeline/in/contract_test_ke_front_api_return_msg_out.json $SERVICE_DIR/tests/pipeline/in/contract_test_ke_front_api_return_msg_in.json
           
           - name: py packages
             run: |
