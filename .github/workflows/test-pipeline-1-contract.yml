@@ -47,7 +47,7 @@ jobs:
             uses: actions/upload-artifact@v4
             with:
               name: water-tank-out-contract-001-step1
-              path: $SERVICE_DIR/tests/pipeline/out/contract_test_ke_front_api_return_msg_out.json
+              path: ${{ env.SERVICE_DIR }}/tests/pipeline/out/contract_test_ke_front_api_return_msg_out.json
               if-no-files-found: error
                 
     
@@ -75,7 +75,7 @@ jobs:
             uses: actions/download-artifact@v4
             with:
                 name: water-tank-out-contract-001-step1
-                path: $SERVICE_DIR/tests/pipeline/in
+                path: ${{ env.SERVICE_DIR }}/tests/pipeline/in
 
           - name: py packages
             run: |
@@ -86,7 +86,7 @@ jobs:
             uses: actions/upload-artifact@v4
             with:
               name: notification-center-001-step2
-              path: $SERVICE_DIR/tests/pipeline/out/contract_test_ke_contact_message_service_out.json
+              path: ${{ env.SERVICE_DIR }}/tests/pipeline/out/contract_test_ke_contact_message_service_out.json
               if-no-files-found: error
     
     step-3-sms-service:      
@@ -111,7 +111,7 @@ jobs:
             uses: actions/download-artifact@v4
             with:
                 name: notification-center-001-step2
-                path: $SERVICE_DIR/tests/pipeline/in
+                path: ${{ env.SERVICE_DIR }}/tests/pipeline/in
 
           - name: py packages
             run: |
