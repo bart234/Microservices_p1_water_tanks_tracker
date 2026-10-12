@@ -5,7 +5,6 @@ redis_test_data_dict= {'kafka_topic': 'water_tank_power',
     'tank_tag': 't1', 
     'field_to_update': 'turnOnOff', 
     'new_value': '0', 
-    'corr_id': '7369e10591ac447c850f5cfae1223bc4', 
     'additional_data': {"sms_service": "123456789", "email_service": "my_tank1@gmail.com"}}
 
 class TestRedis_IN:
@@ -15,7 +14,6 @@ class TestRedis_IN:
         assert test_obj.kafka_topic == redis_test_data_dict['kafka_topic']
         assert test_obj.field_to_update == redis_test_data_dict['field_to_update']
         assert test_obj.new_value == redis_test_data_dict['new_value']
-        assert test_obj.corr_id == redis_test_data_dict['corr_id']
         get_add_data =test_obj.additional_data
         for k,v in redis_test_data_dict['additional_data'].items():
             assert get_add_data[k] == v
@@ -34,7 +32,6 @@ class TestRedis_IN:
         assert test_obj.kafka_topic == redis_test_data_dict['kafka_topic']
         assert test_obj.field_to_update == redis_test_data_dict['field_to_update']
         assert test_obj.new_value == redis_test_data_dict['new_value']
-        assert test_obj.corr_id == redis_test_data_dict['corr_id']
         get_add_data =test_obj.additional_data
         for k,v in redis_test_data_dict['additional_data'].items():
             assert get_add_data[k] == v
