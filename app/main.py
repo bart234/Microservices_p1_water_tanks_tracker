@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-import app.models_pydantic_structures as db_models
+import app.models.models_pydantic_structures as db_models
 from app.db_cfg import engine,Base
 from app.api.routers import tank_path
 from contextlib import asynccontextmanager
