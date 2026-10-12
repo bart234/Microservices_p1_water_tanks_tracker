@@ -12,7 +12,7 @@ import datetime
 def main():     
     run = MainServiceRun()
 
-    #load consumer and producer config from dict
+    #load consumer and producer config from   dict
     run.load_settings_from_cfgs(None,kafka_in_cfg,kafka_out_cfg,service_setting)
 
     #set consumer / consumer
