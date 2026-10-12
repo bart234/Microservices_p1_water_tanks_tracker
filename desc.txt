@@ -47,6 +47,9 @@ todo: (front-api incoming event) - discrapencies in SMSService(1 field more) con
 stage 19:
 done: tests rearrange into tests piramid - unit (launch each time), integration(manually launch) and pipeline (manually launch - ) 
 done: split tests to 3 separated workflows
+todo: notification-center have in KE_notificationmodel - corr_id in data - which should be removed, chack id corr-id from data is used somwhere , if not del that
+      chack in dbtoKafka if that corr_id is send by header, if it is - remove ie from data 
+      check which corr_id we use in redis key in notificaiton center
 
 stage 18: recovery after git hub disaster (structural conflict - branches with main and local repo, mistake with deleting other services from branches)
 done: workflow update : prameters added, new test branch service-turn-on-water-tank added
