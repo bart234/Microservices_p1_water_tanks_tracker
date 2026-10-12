@@ -43,6 +43,8 @@ jobs:
               python -m pip install pytest pydantic
               python -m pytest $SERVICE_DIR/tests/pipeline/test_contract_001_testing.py
 
+          # action/upload-artifact@v4 - pack file into folder with same like file name    
+          # to download (on next step) path without folder have to be used full path where to past it with file at the end
           - name: upload water_tank_power output
             uses: actions/upload-artifact@v4
             with:
@@ -70,12 +72,12 @@ jobs:
              mkdir -p $SERVICE_DIR/tests/pipeline/in/
              mkdir -p $SERVICE_DIR/tests/pipeline/out/
              cp $SERVICE_DIR/tests/pipeline/in_template/contract_test_ke_notification_service_in.json $SERVICE_DIR/tests/pipeline/in/contract_test_ke_notification_service_in.json
-
+          
           - name: getting input from water tank power service
             uses: actions/download-artifact@v4
             with:
                 name: water-tank-out-contract-001-step1
-                path: ${{ env.SERVICE_DIR }}/tests/pipeline/in
+                path: ${{ env.SERVICE_DIR }}/tests/pipeline/in/contract_test_ke_front_api_return_msg_out.json
 
           - name: py packages
             run: |
