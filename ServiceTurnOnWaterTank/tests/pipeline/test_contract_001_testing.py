@@ -1,11 +1,11 @@
 import json,datetime,pytest,os
 from ServiceTurnOnWaterTank.models.kafka_data_models.kafka_incoming_data import KE_WaterTankPower_IN
 from ServiceTurnOnWaterTank.models.kafka_data_models.kafka_outgoing_data import KE_Front_Api_Message_Service_OUT
-from .utility.fake_kafka_class_template import FakeKafkaClassStructure
-from .utility.untility_functions import from_json_file_to_kafka_data_format
+from ServiceTurnOnWaterTank.tests.utility.fake_kafka_class_template import FakeKafkaClassStructure
+from ServiceTurnOnWaterTank.tests.utility.untility_functions import from_json_file_to_kafka_data_format
 
-test_data_KE_watertankpower_IN= os.path.join('ServiceTurnOnWaterTank','tests','contract_test_ke_watertankpower_in.json')
-test_data_KE_Front_api_return_msg_OUT= os.path.join('ServiceTurnOnWaterTank','tests','contract_test_ke_front_api_return_msg_out.json')
+test_data_KE_watertankpower_IN= os.path.join('ServiceTurnOnWaterTank','tests','pipeline','in','contract_test_ke_watertankpower_in.json')
+test_data_KE_Front_api_return_msg_OUT= os.path.join('ServiceTurnOnWaterTank','tests','pipeline','out','contract_test_ke_front_api_return_msg_out.json')
 
 
 class TestContractPassingIN:      
@@ -39,8 +39,11 @@ class TestContractPassingIN:
 class TestContractPassingOUT:
     def test_contract_testing_KE_Front_api_return_msg_OUT(self):
 
+        if os.path.exists(test_data_KE_Front_api_return_msg_OUT):
+            os.drop(test_data_KE_Front_api_return_msg_OUT)
+
         fake_raw_values = b'{"service_time": "2026-09-17T18:52:36.848608+00:00", "tank_tag": "t1","action": "Water Tank switched OFF","base_action":"water_tank_power"}'
-        fake_raw_header = [('corr_id', b'00000000000000000000004'), ('action_id', b'40000000000000000000')]
+        fake_raw_header = [('corr_id', b'00000000000000000000001'), ('action_id', b'10000000000000000000')]
         #data to kafka structure
         fake_msg = FakeKafkaClassStructure(fake_raw_values,fake_raw_header)
 

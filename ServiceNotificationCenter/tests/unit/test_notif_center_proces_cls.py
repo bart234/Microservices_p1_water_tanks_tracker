@@ -1,8 +1,7 @@
 import pytest,json
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from ServiceNotificationCenter.main_logic.notification_center_process import NotificationCenterProcess
 from ServiceNotificationCenter.models.redis_data_models.redis_data_inout import R_Notification_data_INOUT
-from ServiceNotificationCenter.settings.kafka_in_out import kafka_out_cfg,kafka_in_cfg
 
 class TestNotificationCenterProcess:
     @pytest.fixture
