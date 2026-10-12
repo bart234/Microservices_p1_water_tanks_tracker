@@ -32,8 +32,10 @@ jobs:
             with:
               python-version: '3.12'
             
-          - name: copy dummy input for missing steps (db-to-kafka:topic water_tank_power)
+          - name: create expected folders and copy dummy input for missing steps (db-to-kafka:topic water_tank_power)
             run: |
+             mkdir -p $SERVICE_DIR/tests/pipeline/in/
+             mkdir -p $SERVICE_DIR/tests/pipeline/out/
              cp $SERVICE_DIR/tests/pipeline/in_template/contract_test_ke_watertankpower_in.json $SERVICE_DIR/tests/pipeline/in/contract_test_ke_watertankpower_in.json
 
           - name: py packages
@@ -63,8 +65,10 @@ jobs:
             with:
               python-version: '3.12'
 
-          - name: copy dummy input for missing steps (db-to-kafka:topic notificaiton-center )
+          - name:  create expected folders and copy dummy input for missing steps (db-to-kafka:topic notificaiton-center )
             run: |
+             mkdir -p $SERVICE_DIR/tests/pipeline/in/
+             mkdir -p $SERVICE_DIR/tests/pipeline/out/
              cp $SERVICE_DIR/tests/pipeline/in_template/contract_test_ke_notification_service_in.json $SERVICE_DIR/tests/pipeline/in/contract_test_ke_notification_service_in.json
 
           - name: getting input from water tank power service
@@ -98,6 +102,10 @@ jobs:
             uses: actions/setup-python@v5
             with:
               python-version: '3.12'
+          - name:  create expected folders
+            run: |
+             mkdir -p $SERVICE_DIR/tests/pipeline/in/
+             mkdir -p $SERVICE_DIR/tests/pipeline/out/  
 
           - name: getting input from notificetion-center
             uses: actions/download-artifact@v4
