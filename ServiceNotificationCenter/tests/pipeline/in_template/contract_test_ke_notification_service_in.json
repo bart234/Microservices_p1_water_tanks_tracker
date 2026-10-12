@@ -1,4 +1,8 @@
-{
+{   "_comment":{
+        "topic": "notification_service",
+        "source": "db to kafka service",
+        "destination": "notification_service"
+    },
     "values": {
         "kafka_topic": "notification_service",
         "tank_tag": "t1",
