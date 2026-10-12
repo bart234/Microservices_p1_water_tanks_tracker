@@ -47,6 +47,7 @@ class TestNotificationCenterProcess_KafkaInstance:
                         'field_to_update': 'turnOnOff', 
                         'new_value': '0', 
                         'corr_id': '7369e10591ac447c850f5cfae1223bc4', 
+                        'base_action': 'bob1',
                         'additional_data': {"sms_service": "123456789", "email_service": "my_tank1@gmail.com"}
                         }
         

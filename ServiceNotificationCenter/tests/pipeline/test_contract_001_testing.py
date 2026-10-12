@@ -2,26 +2,11 @@ import json,datetime,pytest,os
 from ServiceNotificationCenter.models.kafka_data_models.kafka_incoming_data import KE_Notification_service_IN,KE_Front_api_return_msg_IN
 from ServiceNotificationCenter.models.kafka_data_models.kafka_out_data import KE_Contact_message_service_OUT
 from ServiceNotificationCenter.tests.utility.fake_kafka_class_template import FakeKafkaClassStructure
+from ServiceNotificationCenter.tests.utility.untility_functions import from_json_file_to_kafka_data_format
 
-test_data_KE_Notification_service= os.path.join('ServiceNotificationCenter','tests','pipeline','contract_test_ke_notification_service_in.json')
-test_data_KE_Front_api_returnmsg= os.path.join('ServiceNotificationCenter','tests','pipeline','contract_test_ke_front_api_return_msg_in.json')
-test_data_KE_Contact_message_service_OUT= os.path.join('ServiceNotificationCenter','tests','pipeline','contract_test_ke_contact_message_service_out.json')
-
-def from_json_file_to_kafka_data_format(test_data_path:str):
-    '''load data from json to dict,and convert these dicts to kafka format'''
-    if os.path.exists(test_data_path):
-        with open(test_data_path,"r",encoding=('utf-8')) as f:
-            contract_data = json.load(f)
-        
-        #get dicts from file
-        file_values =contract_data['values']
-        file_header =contract_data['headers']
-
-        #convert dicts to kafka formats
-        kafka_values = json.dumps(file_values).encode('utf-8')
-        kafka_headers = [(k, v.encode('utf-8')) for k, v in file_header.items()] 
-        return kafka_values,kafka_headers
-    return None,None 
+test_data_KE_Notification_service= os.path.join('ServiceNotificationCenter','tests','pipeline','in','contract_test_ke_notification_service_in.json')
+test_data_KE_Front_api_returnmsg= os.path.join('ServiceNotificationCenter','tests','pipeline','in','contract_test_ke_front_api_return_msg_in.json')
+test_data_KE_Contact_message_service_OUT= os.path.join('ServiceNotificationCenter','tests','pipeline','out','contract_test_ke_contact_message_service_out.json')
 
 class TestContractPassingIN:      
     @pytest.fixture()
@@ -71,6 +56,7 @@ class TestContractPassingIN:
         assert event_in.service_time ==  datetime.datetime(2026, 9, 17, 18, 52, 36, 848608, tzinfo=datetime.timezone.utc)
         assert event_in.tank_tag == dict_msg_value['tank_tag']
         assert event_in.action == dict_msg_value['action']
+        assert event_in.base_action == dict_msg_value['base_action']
 
         assert event_in.corr_id == dict_msg_header['corr_id']
         assert event_in.action_id == dict_msg_header['action_id']
