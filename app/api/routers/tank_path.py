@@ -1,8 +1,8 @@
 from fastapi import FastAPI,HTTPException,APIRouter,Depends
-from app.models_pydantic_structures.water_structure import *
-from app.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
-from app.models_data_base_structures.tab_notification import Notification_tab
-from app.models_data_base_structures.tab_maintenence_data import MaintenenceData_tab
+from app.models.models_pydantic_structures.water_structure import *
+from app.models.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
+from app.models.models_data_base_structures.tab_notification import Notification_tab
+from app.models.models_data_base_structures.tab_maintenence_data import MaintenenceData_tab
 from app.infrastructure.database import get_db
 from app.db_access_layer.db_mid_layer import RepositoryWaterTank, RepositoryWaterTankFeatures,\
         RepositoryNotification_tab, RepositoryMaintenenceData, SQLAlchemyRepository
