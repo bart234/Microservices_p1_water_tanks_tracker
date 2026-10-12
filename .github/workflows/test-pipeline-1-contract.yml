@@ -77,13 +77,12 @@ jobs:
             uses: actions/download-artifact@v4
             with:
                 name: water-tank-out-contract-001-step1
-                #it create folder with artifact name at end of that path 
                 path: ${{ env.SERVICE_DIR }}/tests/pipeline/in
 
-          - name: Inspect download folder structure
-            run: |
-              echo "=== STRUKTURA KATALOGU IN ==="
-              ls -R ${{ env.SERVICE_DIR }}/tests/pipeline/in    
+        #   - name: Inspect download folder structure
+        #     run: |
+        #       echo "=== catalog structure ==="
+        #       ls -R ${{ env.SERVICE_DIR }}/tests/pipeline/in    
 
           - name: move file form zipped artifact folder to expected one
             run: mv $SERVICE_DIR/tests/pipeline/in/contract_test_ke_front_api_return_msg_out.json $SERVICE_DIR/tests/pipeline/in/contract_test_ke_front_api_return_msg_in.json
@@ -123,6 +122,9 @@ jobs:
             with:
                 name: notification-center-001-step2
                 path: ${{ env.SERVICE_DIR }}/tests/pipeline/in
+        
+          - name: move file form zipped artifact folder to expected one
+            run: mv $SERVICE_DIR/tests/pipeline/in/contract_test_ke_contact_message_service_out.json $SERVICE_DIR/tests/pipeline/in/contract_test_ke_watertankpower_in.json
 
           - name: py packages
             run: |
