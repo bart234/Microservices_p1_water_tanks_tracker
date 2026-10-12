@@ -1,26 +1,10 @@
 import json,datetime,pytest,os
 from ServiceSMS.models.kafka_data_models.kafka_incoming_data import KE_SmsService_IN
 from ServiceSMS.models.kafka_data_models.kafka_outgoing_data import KE_Front_Api_Message_Service_OUT
-from .fake_kafka_class_template import FakeKafkaClassStructure
-
-test_data_KE_SmsService_IN= os.path.join('ServiceSMS','tests','contract_test_ke_smsservice_in.json')
-test_data_KE_Front_api_return_msg_OUT= os.path.join('ServiceSMS','tests','contract_test_ke_front_api_return_msg_out.json')
-
-def from_json_file_to_kafka_data_format(test_data_path:str):
-    '''load data from json to dict,and convert these dicts to kafka format'''
-    if os.path.exists(test_data_path):
-        with open(test_data_path,"r",encoding=('utf-8')) as f:
-            contract_data = json.load(f)
-        
-        #get dicts from file
-        file_values =contract_data['values']
-        file_header =contract_data['headers']
-
-        #convert dicts to kafka formats
-        kafka_values = json.dumps(file_values).encode('utf-8')
-        kafka_headers = [(k, v.encode('utf-8')) for k, v in file_header.items()] 
-        return kafka_values,kafka_headers
-    return None,None 
+from ServiceSMS.tests.utility.fake_kafka_class_template import FakeKafkaClassStructure
+from ServiceSMS.tests.utility.untility_functions import from_json_file_to_kafka_data_format
+test_data_KE_SmsService_IN= os.path.join('ServiceSMS','tests','pipeline','in','contract_test_ke_smsservice_in.json')
+test_data_KE_Front_api_return_msg_OUT= os.path.join('ServiceSMS','tests','pipeline','out','contract_test_ke_front_api_return_msg_out.json')
 
 class TestContractPassingIN:      
     @pytest.fixture()
@@ -56,7 +40,7 @@ class TestContractPassingOUT:
     def test_contract_testing_KE_Front_api_return_msg_OUT(self):
 
         fake_raw_values = b'{"service_time": "2026-09-17T18:52:36.848608+00:00", "tank_tag": "t1","action": "sms sent","base_action":"water_tank_power"}'
-        fake_raw_header = [('corr_id', b'00000000000000000000004'), ('action_id', b'40000000000000000000')]
+        fake_raw_header = [('corr_id', b'00000000000000000000001'), ('action_id', b'10000000000000000000')]
         #data to kafka structure
         fake_msg = FakeKafkaClassStructure(fake_raw_values,fake_raw_header)
 
