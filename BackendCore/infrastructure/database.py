@@ -1,6 +1,6 @@
 
 from sqlalchemy.orm import sessionmaker,Session
-from app.db_cfg import engine
+from BackendCore.db_cfg import engine
 
 
 def get_db():

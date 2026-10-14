@@ -1,12 +1,12 @@
 from fastapi import FastAPI,HTTPException,APIRouter,Depends
-from app.models.models_pydantic_structures.water_structure import *
-from app.models.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
-from app.models.models_data_base_structures.tab_notification import Notification_tab
-from app.models.models_data_base_structures.tab_maintenence_data import MaintenenceData_tab
-from app.infrastructure.database import get_db
-from app.db_access_layer.db_mid_layer import RepositoryWaterTank, RepositoryWaterTankFeatures,\
+from BackendCore.models.models_pydantic_structures.water_structure import *
+from BackendCore.models.models_data_base_structures.tab_water_structure import db_TanksFeatures,db_WaterTanks
+from BackendCore.models.models_data_base_structures.tab_notification import Notification_tab
+from BackendCore.models.models_data_base_structures.tab_maintenence_data import MaintenenceData_tab
+from BackendCore.infrastructure.database import get_db
+from BackendCore.db_access_layer.db_mid_layer import RepositoryWaterTank, RepositoryWaterTankFeatures,\
         RepositoryNotification_tab, RepositoryMaintenenceData, SQLAlchemyRepository
-from app.mappers.map_water_tanks_structures import Mapper_WaterTanks,Mapper_TankFeatures
+from BackendCore.mappers.map_water_tanks_structures import Mapper_WaterTanks,Mapper_TankFeatures
 from sqlalchemy.orm import Session
 import datetime,uuid
 

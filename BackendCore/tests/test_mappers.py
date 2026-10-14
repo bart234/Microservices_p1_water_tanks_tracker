@@ -1,6 +1,6 @@
-from app.mappers.map_water_tanks_structures import Mapper_WaterTanks,Mapper_TankFeatures
-from app.models.models_data_base_structures.tab_water_structure import db_WaterTanks,db_TanksFeatures
-from app.models.models_pydantic_structures.water_structure import WaterTank,WaterTankFeatures
+from BackendCore.mappers.map_water_tanks_structures import Mapper_WaterTanks,Mapper_TankFeatures
+from BackendCore.models.models_data_base_structures.tab_water_structure import db_WaterTanks,db_TanksFeatures
+from BackendCore.models.models_pydantic_structures.water_structure import WaterTank,WaterTankFeatures
 
 
 def get_watertank_db_obj()->db_WaterTanks:
