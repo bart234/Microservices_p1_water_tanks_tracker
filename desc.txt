@@ -1,59 +1,77 @@
-target: 
-have some simple front, 1th login screen , 2nd tank managment screen
-add user - user authenticate to system
-user can add tank - specify it parameters nad features
-tank will be launched - another containers with sensors will be spown
-based on input data conatiner like - depth-sensor will be launch and will update info
-to table and sms
-sms and email can be disabled , 
-testing, logging, container spowining, auth - in microservices app
+target 2: 
+- have some simple front: 1th login screen , 2nd tank managment screen
+- add simple front to have  visual controll - with current status of water level
+- add user - user authenticate to system
+- user can add tank - specify it parameters and features
+- tank will be launched - another containers with sensors will be spown
+- based on input data conatiner like - depth-sensor will be launch and will update info to table and sms
+- send everything to azure
 
-#ONE THING AT TIME
-#FINISH BASIC STEP 
+target:
 #no front -only api, 
 #do cicd and tests for all services
 #services online crate water tank - get it online/offline, set on/off services sms_notification (other without impact)
 
-add simple front to have  visual controll - with current status of water level
-todo: rething how to test everything
-todo: add additional services
-too: refactor names in api
+
+updated(19)
+todo: (front-api incoming event) - discrapencies in SMSService(1 field more) contract and WaterTank
+
+    Service: front_api --------------------------> [action saved in tabase: PostgreSQL] -------------------------------------
+  (Async Fast API)                                                  |                                                       |
+        ▲                                                           ▼                                                       |
+        |                                                 Service: DB_to_kafka                                              |
+        |                                                  (event extraction)                                               |(are messeges enabled?)
+        |               (topic:water_tank_power)                    |                   (topic:notification_service)        |
+        |                   ---------------------------------------------------------------------------------               |
+        |                   |                                                                                |              |
+        |                   |                                                                                |              |
+        |                   ▼                                                                                ▼              |
+        |               Service:                                                                           Service: <--------
+Action <----------   TurnOnWaterTank                       ---------------------------------------->  Notification Center
+(Mock)                      |                              |                                   (waiting for front_api_return_msg) <--------> Database: Redis 
+        |                   |                              |                                                  |                      (temp storage to match events)
+        |                   |                              |                                                  |                            
+        |                   |                              |                                                  |                                                                
+        |                   |                              |                                                  |                                          
+        |<----- (topic:front_api_return_msg)----------------                                     (topic:sms_service.message)                                       
+        |                                                                                                     |
+        |                                                                                                     ▼                                           
+        |                                                                                                  Service: 
+        |                                                                                                  Send_SMS  ----------> Action 
+        |                           (topic:front_api_message_service)                                         |                  (Mock) 
+        -------------------------------------------------------------------------------------------------------                                        
+                                                                                                                                                         
+                                                              
+todo: refactor names in api
 todo: think what to do with text files about db auth db_texts -> to json?
-todo: think about front to controll that api (simple buttons, logs on botm,)
-
-todd: unify tables (what to do with status and valve_open - move to features?)
-
-todo: start to push each part with version and service name
-todo: tests -  basic one for container - unit tests + integration test  + test for internal logic 
-todo: tests - send tests to github action, prepare github action for each module and prepare action for all of them
-todo: tests - add kafka from container to sumulate kafka msgsb(testcontainers.kafka testcontainers )
-todo: tests - prepate e2e test on all modules on github actions
-todo: add  src field to header - to each KE - to identify source of that event - on api there is issue to distinct which is from where
 
 
-
-#todo: water_tank_on_off - should send back to api info about past action mean (water_tank_power) - current info for api does not know nothing about  
-    what event send that data
 todo: variable in docker-compose - POSTGRES_DB_LOCALHOST should be swithced to -> POSTGRES_DB_LOCALHOST_FILE 
 todo_fix(sms_service): when tank is online, and we turn ON sms-service - there is no confirmation about that action - noinfo in api, no info on sms
 
 todo: set tags for each  branch - not general one
-todo: white more tests do other modules
-todo: create  test for all process like - create tank - tank switch on + tank sms service off,tank switch on + tank sms service on
-            prepare that on dictionary and models in/out for each service with 
-todo: (front-api incoming event) - discrapencies in SMSService(1 field more) contract and WaterTank
-
+todo: when sms_service is turining on/off there is no message to front about that action, or sms 
+      this should be done after change in db in ServiceDbtoKafka - because signal about change didnt reached ServiceSMS
+      should ServiceSMS send email with "You activated SmsService" , also frontend should have some message with confirmaiton 
+      
+stage 20:
+done(technical): prepare redme and desc
+done(rename: app -> backendcore): refactor after renaming, fix db_cfg 
+done(technical): fixes and modifications for abore renaming, fix for db cfg in docker-compose file
+todo: add os.getenv("GITHUB_ACTIONS") flag to tests which will fail on local 
 
 stage 19:
-done: tests rearrange into tests piramid - unit (launch each time), integration(manually launch) and pipeline (manually launch - ) 
-done: split tests to 3 separated workflows
-todo: notification-center have in KE_notificationmodel - corr_id in data - which should be removed, chack id corr-id from data is used somwhere , if not del that
-      chack in dbtoKafka if that corr_id is send by header, if it is - remove ie from data 
-      check which corr_id we use in redis key in notificaiton center
+done(technical): tests rearrange into tests piramid - unit (launch each time), integration(manually launch) and pipeline (manually launch - ) 
+done(technical): split tests to 3 separated workflows
+done(notification-center): notification-center have in KE_notificatio nmodel - corr_id in data - which should be removed, 
+      (done)check id corr-id from data is used somwhere , if not del that
+      (done)check in dbtoKafka if that corr_id is send by header, if it is - remove ie from data 
+      (done)check which corr_id we use in redis key in notificaiton center
+      (done)redis model - changed, adjusted for above changes 
 
 stage 18: recovery after git hub disaster (structural conflict - branches with main and local repo, mistake with deleting other services from branches)
-done: workflow update : prameters added, new test branch service-turn-on-water-tank added
-done: ps script for workflow uppdate crated
+done(technical): workflow update : prameters added, new test branch service-turn-on-water-tank added
+done(technical): ps script for workflow uppdate crated
 
 stage 17(service-turn-on-water-tank): 
 done: refactor  - whole one file temp service is replaced by generic template
@@ -75,13 +93,13 @@ done: refactor  - whole one file temp service is replaced by generic template
                     pytest.ini - service folder have to be added
                     .vscode/setting.json - service folder have to be added
 
-done: versioning was added to each service, to it logic part to track how much behind generic template that service is                
+done: simple versioning was added to each service, to it logic part to track how much behind generic template that service is                
 
 stage 16:
 done(tests vsc):fix: set pytest.ini and vsc.setting for all test in monorepo, each can read each service library
-done(notif-center): refactor tests, change libs pathing
+done(notif_center): refactor tests, change libs pathing
 done(sms): refactor tests, change libs pathing
-todo: add sys_varible to docker-compose and github actions
+todo(technical): add sys_varible to docker-compose and github actions
 todo(service_sms): got template form notification-center, adjust it, refactor all service , add all kind of tests
 
 
@@ -89,9 +107,9 @@ todo(service_sms): got template form notification-center, adjust it, refactor al
 stage 15:
 done:recovery: after git pulled outdated version
 done: send everything to github with diffrent branches 
-done(notification-center): adjust ci pipelines for existing tests
-done(notification-center): test - contract tests for 2x INNPU, 1x OUT
-done(notification-center): switch setting and cfg from hardcosed elements to sys_variable  
+done(notif_center): adjust ci pipelines for existing tests
+done(notif_center): test - contract tests for 2x INNPU, 1x OUT
+done(notif_center): switch setting and cfg from hardcosed elements to sys_variable  
 
 stage 14:
 done(notif_center): tests: test_cases for main case
@@ -101,8 +119,8 @@ done: all actions will trigger kafka msg log to front - that msg isnot saved any
 done: if sms/email service online - each water tank on/off will launch msg
 
 stage 13:
-done(notif_center): rename structures for kafka events from above: SERVICE_RETURN_MSG
-done(notif_center): refactor and modify structure for kafka event , prepare generic class to use 
+done(notif_center): rename structures for kafka events: service_return_msg
+done(notif_center): refactor and modify structure for kafka event, prepare generic class to use 
 done: transfer information about action which was done - to sms service , currently  data on front-api dont have data about base event which trigger that sms_event
 done: check do we need corr_id in redis ?
 done(notif_center): some test were prepared
@@ -111,28 +129,28 @@ done(notif_center): refactor from services to working function
 
 stage 12:
 done(notif_center): remodel all loose db part  in service_notification_center into structures
-done: to avoid catching api returning event from sms/emal by notification center , another topick will be added to sms/email services (message_service)
-done: add additional topic to api_async_front kafka to catch  sms/email services (message_service)
-done: prepare graph with kafka topicks sent between 
-done: rename topics which are goting to front_api: service_return_msg -> front_api_return_msg,message_service -> front_api_message_service
+done: to avoid catching api returning event from sms/email by notification center, another topick will be added to sms/email services (front_api_message_service)
+done: add topic: front_api_message_service to service api_async_front to catch  sms/email data sent to api
+done: prepare graph with kafka topics sent between 
+done: rename topics which are going to front_api: service_return_msg -> front_api_return_msg,message_service -> front_api_message_service
 done(notif_center): add templates of kafka - in/out  messages 
-done: unify kafka msg content to be managable (turnoffon have diffrent data on some fields)
+done: unify kafka msg content to be managable (turnoffon had diffrent data on some fields)
 
     Service: api ---->(action saved in db) ----> Service: DB_to_kafka ----> (2 topics)                  
                                                                                |
                                                                                |
-          -----------    Service:TurnOnWaterTank <----- (water_tank_power) -----                            Sample how it works for TurnOnWaterTank:   
-          |                                                                    |                            - Service DB_to_kafka crate 2 topics: 1th-service-custom, 2nd-notification-service        
-          |                                                                    |                            - if service have flag online - events will be catched by Noitif Center            
-          |                                                                    |                              and message wil  be send to online services
-          |                                                                    |                            -Service kafka flag (water_tank_power) is a column in table tank_features            
-          |                                                          (notification_service)                 -Notification Center chack if for that tank_id messages service as are online            
-          |                                                                    |                                      if does - it send sms/email about each action
-          |                                                                    |                                      if not nothing happen, only temp log on api
-          |                                                        -------------                            -Return kafka event from message servicess is diffrent to avoid cath by Notification Center    
+          -----------    Service:TurnOnWaterTank <----- (water_tank_power) -----               Sample how it works for TurnOnWaterTank:   
+          |                                                                    |               - Service DB_to_kafka crate 2 topics: 1th-service-custom, 2nd-notification-service        
+          |                                                                    |               - if service have flag online(db check) - events will be catched by Noitif Center            
+          |                                                                    |                 and message will  be send to online services
+          |                                                                    |               -Service kafka flag (water_tank_power) is a column in table tank_features            
+          |                                                          (notification_service)    -Notification Center check if for that tank_id messages service as are online            
+          |                                                                    |                         if does - it send sms/email about each action
+          |                                                                    |                         if not nothing happen, only temp log on api
+          |                                                        -------------               -Return kafka event from message servicess is diffrent to avoid cath by Notification Center    
           |                                                        |                                      
           |                                                        |                                      
-          |                                                        ▼                 --------(sms_service.message)  ----------> Service: Send_SMS        
+          |                                                        ▼                   --------(sms_service.message)  ----------> Service: Send_SMS        
  (front_api_return_msg)  ----------------------------->  Service: Notification Center  --------(email_service.message)----------> Service: Send_Email                       
           |                                                                                                                             |      
           |                                                                                                                             |
@@ -142,26 +160,32 @@ done: unify kafka msg content to be managable (turnoffon have diffrent data on s
 
 
 stage 11:
-refactor: api - tables - status moved to table feature and renamed as water_tank_power, valve_status also moved
-          api - tables - concact data added to feature table with prefix details_, services all have suffix "_service"
+refactor: api - table changed - status moved to table tanks_feature and renamed as water_tank_power, valve_status also moved
+          api - table changed - concact colum added to tanks_feature table with prefix details_, services all have suffix "_service"
           db layers, api itself and other code was change to adjust these changes
           notification_center - models - for db and db_acces_layer - just copy,models for kafka in/out data - added
           notification_center - models - for kafka and redis 
           notification_center - refactoring whole process, and encapsulate process in one class
-          fix: issue with get_path - txt file did not exist in linux, extension dissapear during copied win->linux
+          fix(done): issue with fn get_path - txt file did not exist in linux, extension dissapear during copied win->linux
 
 stage 10:
-done:change notification title for kafka-msg_group for water_tank from turnOnOff on water_tank_power, and field turnOnOff
+done: change notification title for kafka-msg_group for water_tank from turnOnOff on water_tank_power, and field turnOnOff
 done: remove corr_id from kafka_data and keep it all the time in header,move header between 
-done: refactor all services to have something like template to work with
+done: refactor all services to have something like template to work with (template 0.6v)
 done: 
   -after brain storm with ai and its idees I decide to create mine own solution
-  -I will create general notification_service, it will listen topics about changes where can be notificaiton, and topics to api
-    (it will not require to significatn chagnes current code). Process: wt will be turnon - base topic will go there, second one - with same data 
-    to general_notificaiton, gen_not will check in db what notificaiton are enabled to that tank_id, if none - it will forget tank_id,
-    if it does some notification - it will keep that tank_tag in memory , and will listening api return msg - we will parr it by corr_id
-    if it parr - gen_not will check what notification will be send (besed on db data) and will make event to that kind of service
-    TOCATCH(done):  few fast turnonof behaviour (it looks like mechanism for that was done on  db_to_kafka_service),
+  -I will create general notification_service, it will listen topics: notification_service and  front_api_return_msg
+    notification_service - will be created in ServiceDbtoKafka and inform notification about what acttion was requestes
+    front_api_return_msg - is a topic creates in end service, which is send after "action" was done, copy of that topic is intercept by notification_center 
+    (it will not require to significatn chagnes current code). 
+    Process: 
+      watertank will be turnon - base topic: water_tank_power will go to service, 
+      second one: notification_service - with same data to general_notificaiton, 
+    Notification center, base on tank_id will check in db if "Notificaiton Services" are enabled to that tank_id, 
+    if none - it will forget tank_id,
+    if it does some notification - it will keep that tank_tag in memory (redis db - 20 sec expire), and will listening api return msg - we will parr it by corr_id
+    if it parr - notification_center will check what notification should be send (based on db data) and will create event to that kind of service: "topic.message"
+    TOCATCH(done):  few fast turnonoff behaviour (mechanism for that was done in db_to_kafka_service - it gather events by corr_id+event and take mose recent),
     TOCATCH(db have expire time on records):  parring and forgetting tank, 
     ADDITIONAL(done): generate action_id and insert it into headers
 
@@ -192,10 +216,11 @@ done: refactor in services
 done: add that corr_id to log naming to have clear path about action on that id
 
 stage 8:
-after whole app was set and configure, test for api failed at all.
-They required to craete other FastAPI instance, override dependency on tank uri 
-by new db function withh active db session and transfer that session to app.
-All fixtures were rewrite, i separate db session , and app+db session
+done: whole app was set and configure
+done: all tests for api failed after reconfiguration
+  They required to craete other FastAPI instance, override dependency on tank uri 
+  by new db function withh active db session and transfer that session to app.
+done: all fixtures were rewrite, i separate db session , and app+db session
 done: change front to be more responsive, in current state it get kafka messages only sometimes
 
 stage 7
@@ -220,8 +245,8 @@ done: service_db_to_kafka (Transactial Outbox) and succesfully configured, works
 
 stage 5:
 done: move all to containers (api, db-postgress, adminer), configure it and mak it wokr together
-done: db - cred from files, loaded to app troough files and env_variables
-done:test e2e done: api, db, mid_layer_db,dta_obj
+done: db - create from files, loaded to app troough files and env_variables
+done: test e2e done: api, db, mid_layer_db,dta_obj
 done: add db: to save tank water level
 done: add more tanks
 
