@@ -16,7 +16,7 @@ target:
 updated(19)
 todo: (front-api incoming event) - discrapencies in SMSService(1 field more) contract and WaterTank
 
-    Service: front_api --------------------------> [action saved in tabase: PostgreSQL] -------------------------------------
+    Service: front_api --------------------------> [action saved in database: PostgreSQL] -------------------------------------
   (Async Fast API)                                                  |                                                       |
         ▲                                                           ▼                                                       |
         |                                                 Service: DB_to_kafka                                              |
@@ -29,7 +29,7 @@ todo: (front-api incoming event) - discrapencies in SMSService(1 field more) con
         |               Service:                                                                           Service: <--------
 Action <----------   TurnOnWaterTank                       ---------------------------------------->  Notification Center
 (Mock)                      |                              |                                   (waiting for front_api_return_msg) <--------> Database: Redis 
-        |                   |                              |                                                  |                      (temp storage to match events)
+        |                   |                              |                                                  |                       
         |                   |                              |                                                  |                            
         |                   |                              |                                                  |                                                                
         |                   |                              |                                                  |                                          
