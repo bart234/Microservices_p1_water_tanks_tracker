@@ -1,14 +1,26 @@
 services:
-  app:
-    build: ./app
-    container_name: service_api_watertank
+  backend_core:
+    build: ./BackendCore
+    container_name: backend_core
     environment:
-      - PYTHONUNBUFFERED=1    #it solve problem when python logs are not appear in console
-    #     DATABASE_URL: "sqlite:///./db_water_system.db"
+      PYTHONUNBUFFERED: 1    #it solve problem when python logs are not appear in console
+      POSTGRES_USER_FILE: /run/secrets/db_user              
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_DB_LOCALHOST_FILE: /run/secrets/db_localhost       # db
+      POSTGRES_DB_FILE: /run/secrets/db_postgres_db  
+      POSTGRES_USER: None
+      POSTGRES_PASSWORD: None 
+      POSTGRES_DB_LOCALHOST: None
+      POSTGRES_DB: None
+    secrets:
+      - db_password
+      - db_user
+      - db_postgres_db
+      - db_localhost
     ports:
       - 80:80
     volumes:
-      - .:/app
+      - ./BackendCore:/BackendCore
     depends_on:
       db:
         condition: service_healthy
@@ -29,7 +41,7 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
-      app: 
+      backend_core: 
         condition: service_started    
             
   service_sms:
