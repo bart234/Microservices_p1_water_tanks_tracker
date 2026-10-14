@@ -66,7 +66,8 @@ docker-compose up --build
 
 ---
 
-## 📝 Roadmap & Active Project TODOs
+## 📝 Roadmap & Project History
+The complete application development history, including implemented updates and future plans, can be found in the [CHANGELOG.md](./CHANGELOG.md) file.
 - [ ] **Telemetry Ingestion Expansion:** Implement dedicated mocked sensor microservices linked to tanks to provide continuous, real-time data streaming over Kafka.
 - [ ] **Dynamic Container Orchestration:** Implement automated, on-demand spawning of isolated sensor containers (e.g., depth-sensors) triggered dynamically by user configurations via the API.
 - [ ] **Frontend Implementation:** Build the 1st (Login) and 2nd (Tank Management Interface) screens to provide a unified visual layout for tracking active telemetry.
