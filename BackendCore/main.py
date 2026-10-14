@@ -1,7 +1,6 @@
 from fastapi import FastAPI
-import app.models.models_pydantic_structures as db_models
-from app.db_cfg import engine,Base
-from app.api.routers import tank_path
+from BackendCore.db_cfg import engine,Base
+from BackendCore.api.routers import tank_path
 from contextlib import asynccontextmanager
 import asyncio,json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -56,7 +55,6 @@ def get_from_headers(msg,element_to_get)-> str:
 def main():
     return {"msg":"bob"}
 
-#uvicorn main:app --relosdHello 
 
 #that endpoint expected to have websocket conenction,
 #if browser does - it will add that conenciton to list

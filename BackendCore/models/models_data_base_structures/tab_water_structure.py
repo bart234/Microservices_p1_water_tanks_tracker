@@ -1,5 +1,5 @@
 from sqlalchemy import Column,Integer,String
-from app.db_cfg import Base
+from BackendCore.db_cfg import Base
 
 class db_WaterTanks(Base):
     __tablename__='water_tanks'

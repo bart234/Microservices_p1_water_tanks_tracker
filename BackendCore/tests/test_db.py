@@ -1,4 +1,4 @@
-from app.models.models_data_base_structures.tab_water_structure import db_WaterTanks,db_TanksFeatures
+from BackendCore.models.models_data_base_structures.tab_water_structure import db_WaterTanks,db_TanksFeatures
 from sqlalchemy import select
 
 
