@@ -8,31 +8,7 @@ The system is built as an asynchronous **Event-Driven Architecture (EDA)**  on A
 Services have complete data isolation following the **Database-per-Service** pattern. 
 
 ### Core Data & Event Flow
-    Service: front_api --------------------------> [action saved in tabase: PostgreSQL] -------------------------------------
-  (Async Fast API)                                                  |                                                       |
-        ▲                                                           ▼                                                       |
-        |                                                 Service: DB_to_kafka                                              |
-        |                                                  (event extraction)                                               |(are messeges enabled?)
-        |               (topic:water_tank_power)                    |                   (topic:notification_service)        |
-        |                   ---------------------------------------------------------------------------------               |
-        |                   |                                                                                |              |
-        |                   |                                                                                |              |
-        |                   ▼                                                                                ▼              |
-        |               Service:                                                                           Service: <--------
-Action <----------   TurnOnWaterTank                       ---------------------------------------->  Notification Center
-(Mock)                      |                              |                                   (waiting for front_api_return_msg) <--------> Database: Redis 
-        |                   |                              |                                                  |                      (temp storage to match events)
-        |                   |                              |                                                  |                            
-        |                   |                              |                                                  |                                                                
-        |                   |                              |                                                  |                                          
-        |<----- (topic:front_api_return_msg)----------------                                     (topic:sms_service.message)                                       
-        |                                                                                                     |
-        |                                                                                                     ▼                                           
-        |                                                                                                  Service: 
-        |                                                                                                  Send_SMS  ----------> Action 
-        |                           (topic:front_api_message_service)                                         |                  (Mock) 
-        -------------------------------------------------------------------------------------------------------                                        
-                                                                                                                                                         
+![Architecture](docs/architecture.png) 
                 
 ---
 
