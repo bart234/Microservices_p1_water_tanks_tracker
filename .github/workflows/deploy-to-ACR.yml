@@ -1,0 +1,68 @@
+name: Release to ACR
+
+on:
+    workflow_run:
+        workflows: ["Microservices pipeline-contract-test-001 pipeline v1"]
+        types: 
+            - completed
+
+env: 
+    ACR_SERVER: ${{ secrets.ACR_SERVER }}
+
+jobs:
+  #it setting  variable about which branch was changed   and which run shoule be run
+    changes-detection:
+        runs-on: ubuntu-latest
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        outputs: 
+            #it getting 'tag' from section filters and save it info changed_service variable
+            #that tag is later used as a distingction what was chagnged
+            changed_service: ${{ steps.filter_for_dorny.outputs.changes }}
+        steps:
+            - name: Repo checkout
+              uses: actions/checkout@v4
+
+            - name: Check which repo was changed
+              uses: dorny/paths-filter@v3   
+              id: filter_for_dorny
+              with: 
+                #'tags' are folder names in monorepo
+                filters: |
+                    ServiceNotificationCenter:      'ServiceNotificationCenter/**'
+                    ServiceSMS:                     'ServiceSMS/**'
+                    ServiceTurnOnWaterTank:         'ServiceTurnOnWaterTank/**'
+
+    build-and-push:
+        needs: [changes-detection]
+        if: ${{ needs.changes-detection.outputs.changed_service != '[]' && needs.changes-detection.outputs.changed_service != '' }}
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                service_tag: ${{ fromJSON(needs.changes-detection.outputs.changed_service) }}
+
+        steps:
+            - name: Repo checkout
+              uses: actions/checkout@v4
+            
+            - name: Log in to ACR
+              uses: azure/docker-login@v2
+              with:
+                login-server: ${{ secrets.ACR_SERVER }}
+                username: ${{ secrets.AZURE_ACR_USERNAME }}
+                password: ${{ secrets.AZURE_ACR_PASSWORD }}
+
+            - name: Build and tag Docker image
+              run: |
+                # ACR accept only small letters, convert folder name to lower case
+                IMAGE_NAME=$(echo "${{ matrix.service_tag }}" | tr '[:upper:]' '[:lower:]')
+                
+                docker build -t ${{ env.ACR_SERVER }}/$IMAGE_NAME:latest \
+                            -t ${{ env.ACR_SERVER }}/$IMAGE_NAME:${{ github.sha }} \
+                            -f ${{ matrix.service_tag }}/Dockerfile ${{ matrix.service_tag }}/
+
+            - name: Push image to ACR
+              run: |
+                IMAGE_NAME=$(echo "${{ matrix.service_tag }}" | tr '[:upper:]' '[:lower:]')
+                
+                docker push ${{ env.ACR_SERVER }}/$IMAGE_NAME:latest
+                docker push ${{ env.ACR_SERVER }}/$IMAGE_NAME:${{ github.sha }}
