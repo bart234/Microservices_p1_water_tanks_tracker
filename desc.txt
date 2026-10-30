@@ -49,15 +49,24 @@ todo: think what to do with text files about db auth db_texts -> to json?
 todo: variable in docker-compose - POSTGRES_DB_LOCALHOST should be swithced to -> POSTGRES_DB_LOCALHOST_FILE 
 todo_fix(sms_service): when tank is online, and we turn ON sms-service - there is no confirmation about that action - noinfo in api, no info on sms
 
-todo: set tags for each  branch - not general one
-todo: when sms_service is turining on/off there is no message to front about that action, or sms 
-      this should be done after change in db in ServiceDbtoKafka - because signal about change didnt reached ServiceSMS
-      should ServiceSMS send email with "You activated SmsService" , also frontend should have some message with confirmaiton 
+futher services updates are on stand by, they will be introduce after azure will be set, to have full cicd pipeline
+  todo: set tags for each  branch - not general one
+  todo: when sms_service is turining on/off there is no message to front about that action, or sms 
+        this should be done after change in db in ServiceDbtoKafka - because signal about change didnt reached ServiceSMS
+        should ServiceSMS send email with "You activated SmsService" , also frontend should have some message with confirmaiton 
+  todo: unify template status on microservices - each service contain txt with version.
+        ServiceTurnOnWaterTank (v1.0)     - is fully generic, unify and maintainable by dedicated class and controlled by settings
+        SmsService (v0.7)                 - is generic but logic is hardcoded and setting only partialy allow to control service
+        ServiceNotificetionCenter(v0.4)   - that was first version of generic template, is cranky, and require work
+        ServiceDBtoKafka(v0.1)            - raw service, without anything generic and customable
+        BackendCore(v0.8)                 - it is mostly api, but kafka part require some work to be more custom
+
       
 stage 20:
 done(technical): prepare redme and desc
 done(rename: app -> backendcore): refactor after renaming, fix db_cfg 
 done(technical): fixes and modifications for abore renaming, fix for db cfg in docker-compose file
+done(azure workflow): add matrix build to push to ACR recently updated image of selected microservice
 todo: add os.getenv("GITHUB_ACTIONS") flag to tests which will fail on local 
 
 stage 19:

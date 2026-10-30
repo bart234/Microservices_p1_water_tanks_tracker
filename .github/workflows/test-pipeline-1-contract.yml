@@ -13,13 +13,22 @@ name: Microservices pipeline-contract-test-001 pipeline v1
 
 on:
   workflow_dispatch:    #run on demand
-  push:                 #run after pr to main
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Microservices unit-test pipeline v1"]
+    types: 
+      - completed
 
 jobs:
+    check-success:
+      runs-on: ubuntu-latest
+      if: ${{ github.event.workflow_run.conclusion == 'success' }}
+      steps:
+      - name: Previous workflow checked status success
+        run: echo "Previous workflow checked status success"
+        
     #proper test cases
     step-1-water-tank-power-service:
+      needs: check-success
       runs-on: ubuntu-latest
       env:
         SERVICE_DIR: 'ServiceTurnOnWaterTank'
