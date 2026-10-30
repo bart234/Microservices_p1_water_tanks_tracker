@@ -17,7 +17,6 @@ class R_Notification_data_INOUT(BaseModel):
     tank_tag: str
     field_to_update:str
     new_value: str
-    corr_id:str
     additional_data: dict[str,str]
 
     @staticmethod

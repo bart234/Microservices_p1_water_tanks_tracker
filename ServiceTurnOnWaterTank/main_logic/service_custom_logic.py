@@ -1,5 +1,5 @@
 from abc import ABC
-from ServiceTurnOnWaterTank.storage_for_function import delivery_report
+from ServiceTurnOnWaterTank.main_logic.storage_for_function import delivery_report
 import datetime
 v=1.0
 

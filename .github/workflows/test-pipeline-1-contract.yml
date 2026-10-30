@@ -1,115 +1,153 @@
-name: Microservices pipeline-contract-test-1 pipeline v1
-
+name: Microservices pipeline-contract-test-001 pipeline v1
+#contract-test-1 :path
+#water_tank_service in before   -> dummy creation: topic: water_tank_power (in_tempalte -> in)
+#                   out         -> front_api_return_msg
+#notification_center 
+#                   in before   -> dummy creation: topic: notification_service
+#                   catch       -> front_api_return_msg
+#                   out         -> sms_service.message
+#sms_service        
+#                   catch       -> sms_service.message
+#                   out         -> front_api_message_service
+#
+ 
 on:
-    push:
-        branches:
-            - 'feature/**'            
-            - '!feature/technical-settings'
-            - main
+  workflow_dispatch:    #run on demand
+  workflow_run:
+    workflows: ["Microservices unit-test pipeline v1"]
+    types: 
+      - completed
 
 jobs:
-    #it setting  variable about which branch was changed   and which run shoule be run
-    changes-detection:
+    check-success:
+      runs-on: ubuntu-latest
+      if: ${{ github.event.workflow_run.conclusion == 'success' }}
+      steps:
+      - name: Previous workflow checked status success
+        run: echo "Previous workflow checked status success"
+        
+    #proper test cases
+    step-1-water-tank-power-service:
+      needs: check-success
+      runs-on: ubuntu-latest
+      env:
+        SERVICE_DIR: 'ServiceTurnOnWaterTank'
+      steps:
+          - name: Repo checkout 
+            uses: actions/checkout@v4
+            
+          - name: py init
+            uses: actions/setup-python@v5
+            with:
+              python-version: '3.12'
+            
+          - name: create expected folders and copy dummy input for missing steps (db-to-kafka:topic water_tank_power)
+            run: |
+             mkdir -p $SERVICE_DIR/tests/pipeline/in/
+             mkdir -p $SERVICE_DIR/tests/pipeline/out/
+             cp $SERVICE_DIR/tests/pipeline/in_template/contract_test_ke_watertankpower_in.json $SERVICE_DIR/tests/pipeline/in/contract_test_ke_watertankpower_in.json
+
+          - name: py packages
+            run: |
+              python -m pip install pytest pydantic
+              python -m pytest $SERVICE_DIR/tests/pipeline/test_contract_001_testing.py
+
+          # action/upload-artifact@v4 - pack file into folder with same like file name    
+          # on next step: use full path where to past it with file at the end
+          - name: upload water_tank_power output
+            uses: actions/upload-artifact@v4
+            with:
+              name: water-tank-out-contract-001-step1
+              path: ${{ env.SERVICE_DIR }}/tests/pipeline/out/contract_test_ke_front_api_return_msg_out.json
+              if-no-files-found: error
+                
+    
+    step-2-notification-center:      
+        needs: step-1-water-tank-power-service
         runs-on: ubuntu-latest
-        outputs: 
-            flag_notification_center: ${{ steps.filter_for_dorny.outputs.notification_center_check_result }}
-            flag_sms_service: ${{ steps.filter_for_dorny.outputs.sms_service_check_result }}
-            flag_watertankpower_service: ${{ steps.filter_for_dorny.outputs.watertankpower_service_check_result }}
+        env:
+          SERVICE_DIR: 'ServiceNotificationCenter'
         steps:
-            - uses: actions/checkout@v4
-            #it track changes in commit
-            - uses: dorny/paths-filter@v3   
-              id: filter_for_dorny
-              with: 
-                filters: |
-                    notification_center_check_result:
-                        - 'ServiceNotificationCenter/**'
-                    sms_service_check_result:
-                        - 'ServiceSMS/**'
-                    watertankpower_service_check_result:
-                        - 'ServiceTurnOnWaterTank/**'
+          - name: Repo checkout 
+            uses: actions/checkout@v4
+            
+          - name: py init
+            uses: actions/setup-python@v5
+            with:
+              python-version: '3.12'
+
+          - name:  create expected folders and copy dummy input for missing steps (db-to-kafka:topic notificaiton-center )
+            run: |
+             mkdir -p $SERVICE_DIR/tests/pipeline/in/
+             mkdir -p $SERVICE_DIR/tests/pipeline/out/
+             cp $SERVICE_DIR/tests/pipeline/in_template/contract_test_ke_notification_service_in.json $SERVICE_DIR/tests/pipeline/in/contract_test_ke_notification_service_in.json
+          
+          - name: getting input from water tank power service
+            uses: actions/download-artifact@v4
+            with:
+                name: water-tank-out-contract-001-step1
+                path: ${{ env.SERVICE_DIR }}/tests/pipeline/in
+
+        #   - name: Inspect download folder structure
+        #     run: |
+        #       echo "=== catalog structure ==="
+        #       ls -R ${{ env.SERVICE_DIR }}/tests/pipeline/in    
+
+          - name: move file form zipped artifact folder to expected one
+            run: mv $SERVICE_DIR/tests/pipeline/in/contract_test_ke_front_api_return_msg_out.json $SERVICE_DIR/tests/pipeline/in/contract_test_ke_front_api_return_msg_in.json
+          
+          - name: py packages
+            run: |
+              python -m pip install pytest pydantic
+              python -m pytest $SERVICE_DIR/tests/pipeline/test_contract_001_testing.py
+
+          - name: upload water_tank_power output
+            uses: actions/upload-artifact@v4
+            with:
+              name: notification-center-001-step2
+              path: ${{ env.SERVICE_DIR }}/tests/pipeline/out/contract_test_ke_contact_message_service_out.json
+              if-no-files-found: error
     
-    # test-water-tank-power-service:      
-    #     needs: changes-detection
-    #     if: ${{ needs.changes-detection.outputs.flag_watertankpower_service == 'true' }}
-    #     runs-on: ubuntu-latest
-    #     env:
-    #       SERVICE_DIR: 'ServiceTurnOnWaterTank'
-    #     steps:
-    #         - name: Repo checkout 
-    #           uses: actions/checkout@v4
-              
-    #         - name: py init
-    #           uses: actions/setup-python@v5
-    #           with:
-    #             python-version: '3.12'
-    #             cache: 'pip'
-    #             cache-dependency-path: '${{ env.SERVICE_DIR }}/requirements.txt'
-
-    #         - name: py packages
-    #           run: |
-    #             python -m pip install --upgrade pip
-    #             python -m pip install -r $SERVICE_DIR/requirements.txt --user || true
+    step-3-sms-service:      
+        needs: step-2-notification-center
+        runs-on: ubuntu-latest
+        env:
+          SERVICE_DIR: 'ServiceSMS'
+        steps:
+          - name: Repo checkout 
+            uses: actions/checkout@v4
             
-    #         - name: Run pytest ${{ env.SERVICE_DIR }}
-    #           env:
-    #             PYTHONPATH: ${{ github.workspace }}
-    #           run: |
-    #              python -m pytest $SERVICE_DIR/tests/unit/
+          - name: py init
+            uses: actions/setup-python@v5
+            with:
+              python-version: '3.12'
+          - name:  create expected folders
+            run: |
+             mkdir -p $SERVICE_DIR/tests/pipeline/in/
+             mkdir -p $SERVICE_DIR/tests/pipeline/out/  
 
+          - name: getting input from notificetion-center
+            uses: actions/download-artifact@v4
+            with:
+                name: notification-center-001-step2
+                path: ${{ env.SERVICE_DIR }}/tests/pipeline/in
+                
+          - name: Inspect download folder structure
+            run: |
+              echo "=== catalog structure ==="
+              ls -R ${{ env.SERVICE_DIR }}/tests/pipeline/in    
+        
+          - name: move file form zipped artifact folder to expected one
+            run: mv $SERVICE_DIR/tests/pipeline/in/contract_test_ke_contact_message_service_out.json $SERVICE_DIR/tests/pipeline/in/contract_test_ke_smsservice_in.json
 
-    # test-notification-center:
-    #     needs: changes-detection
-    #     if: ${{ needs.changes-detection.outputs.flag_notification_center == 'true'}}
-    #     runs-on: ubuntu-latest
-    #     env:
-    #       SERVICE_DIR: 'ServiceNotificationCenter'
-    #     steps:
-    #         - name: Repo checkout 
-    #           uses: actions/checkout@v4
-              
-    #         - name: py init
-    #           uses: actions/setup-python@v5
-    #           with:
-    #             python-version: '3.12'
-    #             cache: 'pip'
-    #             cache-dependency-path: '${{ env.SERVICE_DIR }}/requirements.txt'
-            
-    #         - name: py packages
-    #           run: |
-    #             python -m pip install --upgrade pip
-    #             python -m pip install -r $SERVICE_DIR/requirements.txt --user || true
-            
-    #         - name: Run pytest ${{ env.SERVICE_DIR }}
-    #           env:
-    #             PYTHONPATH: ${{ github.workspace }}
-    #           run: |
-    #              python -m pytest $SERVICE_DIR/tests/unit/
-    
-    # test-sms-service:
-    #     needs: changes-detection
-    #     if: ${{ needs.changes-detection.outputs.flag_sms_service == 'true'}} 
-    #     runs-on: ubuntu-latest
-    #     env:
-    #       SERVICE_DIR: 'ServiceSMS'
-    #     steps:
-    #         - name: Repo checkout 
-    #           uses: actions/checkout@v4
-              
-    #         - name: py init
-    #           uses: actions/setup-python@v5
-    #           with:
-    #             python-version: '3.12'
-    #             cache: 'pip'
-    #             cache-dependency-path: '${{ env.SERVICE_DIR }}/requirements.txt'
-            
-    #         - name: py packages
-    #           run: |
-    #             python -m pip install --upgrade pip
-    #             python -m pip install -r $SERVICE_DIR/requirements.txt --user || true
+          - name: py packages
+            run: |
+              python -m pip install pytest pydantic
+              python -m pytest $SERVICE_DIR/tests/pipeline/test_contract_001_testing.py
 
-    #         - name: Run pytest ${{ env.SERVICE_DIR }}
-    #           env:
-    #             PYTHONPATH: ${{ github.workspace }}
-    #           run: |
-    #              python -m pytest $SERVICE_DIR/tests/unit/
+    #       - name: upload water_tank_power output
+    #         uses: actions/upload-artifact@v4
+    #         with:
+    #           name: sms-service-001-step2
+    #           path: $SERVICE_DIR/tests/pipeline/out/contract_test_ke_contact_message_service_out.json
+    #           if-no-files-found: error

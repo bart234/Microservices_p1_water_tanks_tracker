@@ -6,7 +6,7 @@ on:
             - 'feature/**'            
             - '!feature/technical-settings'
             - main
-
+ 
 jobs:
     #it setting  variable about which branch was changed   and which run shoule be run
     changes-detection:

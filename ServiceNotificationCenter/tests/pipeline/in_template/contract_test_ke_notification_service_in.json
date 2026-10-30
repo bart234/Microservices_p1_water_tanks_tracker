@@ -1,0 +1,17 @@
+{   "_comment":{
+        "topic": "notification_service",
+        "source": "db to kafka service",
+        "destination": "notification_service"
+    },
+    "values": {
+        "kafka_topic": "notification_service",
+        "tank_tag": "t1",
+        "field_to_update": "turnOnOff",
+        "new_value": "0",
+        "corr_id": "00000000000000000000001"
+    },
+    "headers": {
+        "corr_id": "00000000000000000000001",
+        "action_id": "10000000000000000000"
+    }
+}

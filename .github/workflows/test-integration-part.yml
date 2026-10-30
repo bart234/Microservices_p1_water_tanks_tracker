@@ -1,14 +1,26 @@
 name: Microservices integration-test pipeline v1
+#longest - each test will run kafka container
+
 
 on:
   workflow_dispatch:    #run on demand
-  push:                 #run after pr to main
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Microservices pipeline-contract-test-001 pipeline v1"]
+    types: 
+      - completed
 
 jobs:
+    #validation  previous test ersult
+    check-success:
+      runs-on: ubuntu-latest
+      if: ${{ github.event.workflow_run.conclusion == 'success' }}
+      steps:
+      - name: Previous workflow checked status success
+        run: echo "Previous workflow checked status success"
+
     #proper test cases
     test-water-tank-power-service:
+      needs: check-success
       runs-on: ubuntu-latest
       env:
         SERVICE_DIR: 'ServiceTurnOnWaterTank'
@@ -36,6 +48,7 @@ jobs:
 
 
     test-notification-center:
+        needs: check-success
         runs-on: ubuntu-latest
         env:
           SERVICE_DIR: 'ServiceNotificationCenter'
@@ -62,6 +75,7 @@ jobs:
                  python -m pytest $SERVICE_DIR/tests/integration/
     
     test-sms-service:
+        needs: check-success
         runs-on: ubuntu-latest
         env:
           SERVICE_DIR: 'ServiceSMS'

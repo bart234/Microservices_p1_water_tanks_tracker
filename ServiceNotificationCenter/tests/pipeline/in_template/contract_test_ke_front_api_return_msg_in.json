@@ -1,0 +1,16 @@
+{   "_comment":{
+        "topic": "front_api_return_msg",
+        "source": "water_tank_power service",
+        "destination": "front api kafka consumer, second catch notification-center"
+    },
+    "values": {
+        "service_time": "2026-09-17T18:52:36.848608+00:00",
+        "tank_tag": "t1",
+        "action": "Water Tank switched OFF",
+        "base_action": "water_tank_power"
+    },
+    "headers": {
+        "corr_id": "00000000000000000000001",
+        "action_id": "10000000000000000000"
+    }
+}
