@@ -10,7 +10,7 @@ name: Microservices pipeline-contract-test-001 pipeline v1
 #                   catch       -> sms_service.message
 #                   out         -> front_api_message_service
 #
-
+ 
 on:
   workflow_dispatch:    #run on demand
   workflow_run:
