@@ -16,7 +16,6 @@ class _Notification_service_data(BaseModel):
     tank_tag: str
     field_to_update:str
     new_value: str
-    corr_id:str
 
 class _Notification_service_header(BaseModel):
     corr_id: str
@@ -40,6 +39,7 @@ class _Front_api_return_msg_data(BaseModel):
     service_time: datetime 
     tank_tag: str
     action:str
+    base_action:str
 
 class _Front_api_return_msg_header(BaseModel):
     corr_id: str
@@ -54,4 +54,5 @@ class KE_Front_api_return_msg_IN(KafkaIncomingTemplate[_Front_api_return_msg_hea
         self.service_time = None 
         self.tank_tag = None
         self.action = None
+        self.base_action = None
         super().__init__(_Front_api_return_msg_header,_Front_api_return_msg_data)
