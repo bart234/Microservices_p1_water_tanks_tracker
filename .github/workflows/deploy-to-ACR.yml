@@ -29,8 +29,8 @@ jobs:
               id: filter_for_dorny
               with: 
                 token: ${{ secrets.GITHUB_TOKEN }}
-                base: ${{ github.event.workflow_run.before }}
-                ref: ${{ github.event.workflow_run.head_sha }}
+                base: HEAD~1
+                ref: HEAD
                 #'tags' are folder names in monorepo
                 filters: |
                     ServiceNotificationCenter:      'ServiceNotificationCenter/**'
