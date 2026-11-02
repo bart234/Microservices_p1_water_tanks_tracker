@@ -30,7 +30,7 @@ jobs:
               id: filter_for_dorny
               with: 
                 token: ${{ secrets.GITHUB_TOKEN }}
-                base: ${{ github.event.workflow_run.pull_requests[0].base.sha || 'main' }}
+                base: ${{ github.event.workflow_run.head_sha }}~1
                 ref: ${{ github.event.workflow_run.head_sha }}
                 #'tags' are folder names in monorepo
                 filters: |
