@@ -1,4 +1,5 @@
 import os
+
 #consumer
 KAFKA_WAIT_TIME_BETWEE_POOLS =  int(os.getenv("KAFKA_WAIT_TIME_BETWEE_POOLS",5)) 
 KAFKA_SERVER_ADDRESS =          os.getenv("KAFKA_SERVER_ADDRESS","kafka:29092")
