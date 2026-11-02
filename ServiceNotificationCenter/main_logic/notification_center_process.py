@@ -79,7 +79,7 @@ class NotificationCenterProcess:
         for service,contact in additional_data.items():
             
             #prepare correct topic to send
-            topic_to_send = (self.kafka_out_cfg['KAFKA_RETURN_TOPIC_FALLBACK_NOTIF']).replace('topic',service)
+            topic_to_send = (self.kafka_out_cfg['KAFKA_TOPIC_PRODUCER']).replace('topic',service)
 
             ke_output_obj = KE_Contact_message_service_OUT()            
             ke_output_obj.from_redis_notif_model(redis_data,header)

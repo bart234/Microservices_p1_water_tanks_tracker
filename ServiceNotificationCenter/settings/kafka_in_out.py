@@ -61,7 +61,7 @@ else:
                         }
 
         #topic.message - 'topic' will be replaced by expected service like: sms_service.message or email_service.message
-        kafka_out_cfg = {'KAFKA_RETURN_TOPIC_FALLBACK_NOTIF':KAFKA_TOPIC_TEMPLATE,       
+        kafka_out_cfg = {'KAFKA_TOPIC_PRODUCER':KAFKA_TOPIC_TEMPLATE,       
                         'KAFKA_PRODUCER_CONFIG' :
                                 {'bootstrap.servers':KAFKA_SERVER_ADDRESS}
                         }

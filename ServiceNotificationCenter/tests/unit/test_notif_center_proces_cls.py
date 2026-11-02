@@ -54,7 +54,7 @@ class TestNotificationCenterProcess:
         t1 = NotificationCenterProcess()
 
         t1._producer = MagicMock()
-        t1.kafka_out_cfg = {'KAFKA_RETURN_TOPIC_FALLBACK_NOTIF': 'topic.message'}
+        t1.kafka_out_cfg = {'KAFKA_TOPIC_PRODUCER': 'topic.message'}
 
         t1.send_messages_to_external_services(r_data,header_data)
 
