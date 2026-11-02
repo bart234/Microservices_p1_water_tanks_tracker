@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from BackendCore.db_cfg import engine,Base
 from BackendCore.api.routers import tank_path
+from BackendCore.settings.kafka_in_out import kafka_in_cfg, kafka_out_cfg,KAFKA_EVENT_HUB_CONNECTION_STRING
 from contextlib import asynccontextmanager
 import asyncio,json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -36,14 +37,6 @@ app.add_middleware(
 )
 active_connections: list[WebSocket] = []
 
-KAFKA_TOPIC_CONSUMER = ['front_api_return_msg','front_api_message_service']
-KAFKA_BOOTSTRAP_SERVER_CONSUMER ="kafka:29092"
-KAFKA_CONSUMER_CONFIG = {
-    "bootstrap.servers": KAFKA_BOOTSTRAP_SERVER_CONSUMER,
-    "group.id": KAFKA_TOPIC_CONSUMER,
-    "auto.offset.reset": "earliest"
-}
-
 def get_from_headers(msg,element_to_get)-> str:
     try:
         header_dict ={k: v.decode('utf-8') for k,v in msg.headers()}
@@ -70,12 +63,26 @@ async def websocket_endpoint(websocket: WebSocket):
         active_connections.remove(websocket)
 
 async def consume_kafka_callbacks():
-    consumer = AIOKafkaConsumer(*KAFKA_TOPIC_CONSUMER,
-                                bootstrap_servers=KAFKA_BOOTSTRAP_SERVER_CONSUMER,
-                                group_id="api_feedback_loop",
-                                auto_offset_reset="earliest")   
+    if KAFKA_EVENT_HUB_CONNECTION_STRING:        
+        import ssl
+        ssl_context = ssl.create_default_context()
+        
+        consumer = AIOKafkaConsumer(*kafka_in_cfg['KAFKA_TOPIC_CONSUMER'],
+                                    bootstrap_servers=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["bootstrap.servers"],
+                                    security_protocol=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["security.protocol"],
+                                    sasl_mechanism=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["sasl.mechanism"],
+                                    sasl_plain_username=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["sasl.username"],
+                                    sasl_plain_password=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["sasl.password"],
+                                    group_id=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["group.id"],
+                                    auto_offset_reset=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["auto.offset.reset"],
+                                    ssl_context=ssl_context)   
 
-    await consumer.start()
+        await consumer.start()
+    else:
+        consumer = AIOKafkaConsumer(*kafka_in_cfg['KAFKA_TOPIC_CONSUMER'],
+                                bootstrap_servers=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["bootstrap.servers"],
+                                group_id=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["group.id"],
+                                auto_offset_reset=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["auto.offset.reset"])   
     print("Log: Kafka connection success.Consumer started")
     try:
         #it sit inbackground and if any msg appear from expected topic
