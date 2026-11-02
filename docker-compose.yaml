@@ -3,6 +3,11 @@ services:
     build: ./BackendCore
     container_name: backend_core
     environment:
+      KAFKA_WAIT_TIME_BETWEE_POOLS: 5
+      KAFKA_SERVER_ADDRESS: kafka:29092
+      KAFKA_INCOMING_TOPICS: front_api_return_msg,front_api_message_service  
+      KAFKA_GROUP_ID: Api_feedback_loop.id      
+      KAFKA_TOPIC_TEMPLATE: None
       PYTHONUNBUFFERED: 1    #it solve problem when python logs are not appear in console
       POSTGRES_USER_FILE: /run/secrets/db_user              
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password

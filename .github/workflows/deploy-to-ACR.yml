@@ -1,6 +1,7 @@
 name: Release to ACR
 
-on:
+on: 
+    workflow_dispatch:    #run on demand 
     workflow_run:
         workflows: ["Microservices pipeline-contract-test-001 pipeline v1"]
         types: 
@@ -31,6 +32,7 @@ jobs:
                     ServiceNotificationCenter:      'ServiceNotificationCenter/**'
                     ServiceSMS:                     'ServiceSMS/**'
                     ServiceTurnOnWaterTank:         'ServiceTurnOnWaterTank/**'
+                    BackendCore:                    'BackendCore/**'
 
     build-and-push:
         needs: [changes-detection]
