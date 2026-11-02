@@ -21,11 +21,17 @@ jobs:
         steps:
             - name: Repo checkout
               uses: actions/checkout@v4
+              with:
+                ref: ${{ github.event.workflow_run.head_sha }}
+                featch-depth: 0 #getting whole history
 
             - name: Check which repo was changed
               uses: dorny/paths-filter@v3   
               id: filter_for_dorny
               with: 
+                token: ${{ secrets.GITHUB_TOKEN }}
+                base: ${{ github.event.workflow_run.pull_requests[0].base.sha || 'main' }}
+                ref: ${{ github.event.workflow_run.head_sha }}
                 #'tags' are folder names in monorepo
                 filters: |
                     ServiceNotificationCenter:      'ServiceNotificationCenter/**'

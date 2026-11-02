@@ -5,7 +5,10 @@
 
 # User-specific files
 *.pyc
-db_*
+db_localhost*
+db_password*
+db_postgres_db*
+db_user*
 *.db
 *.rsuser
 *.suo
