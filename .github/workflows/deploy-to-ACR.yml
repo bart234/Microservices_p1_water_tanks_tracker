@@ -23,7 +23,7 @@ jobs:
               uses: actions/checkout@v4
               with:
                 ref: ${{ github.event.workflow_run.head_sha }}
-                featch-depth: 0 #getting whole history
+                fetch-depth: 0 #getting whole history
 
             - name: Check which repo was changed
               uses: dorny/paths-filter@v3   
