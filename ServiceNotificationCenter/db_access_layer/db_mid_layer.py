@@ -4,6 +4,7 @@ from ServiceNotificationCenter.models.models_data_base_structures.tab_water_stru
 from sqlalchemy.orm import Session
 from sqlalchemy import select,update,delete
 
+
 T=TypeVar("T")
 
 #[T] - required python > s3.12
