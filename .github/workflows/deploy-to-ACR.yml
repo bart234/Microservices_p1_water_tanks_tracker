@@ -15,28 +15,30 @@ jobs:
         runs-on: ubuntu-latest
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
         outputs: 
-            #it getting 'tag' from section filters and save it info changed_service variable
-            #that tag is later used as a distingction what was chagnged
-            changed_service: ${{ steps.filter_for_dorny.outputs.changes }}
+            changed_service: ${{ steps.parse.outputs.services }}
         steps:
-            - name: Repo checkout
-              uses: actions/checkout@v4
-              with:
-                fetch-depth: 0 #getting whole history
-
-            - name: Check which repo was changed
-              uses: dorny/paths-filter@v3   
-              id: filter_for_dorny
-              with: 
-                token: ${{ secrets.GITHUB_TOKEN }}
-                base: HEAD~1
-                ref: HEAD
-                #'tags' are folder names in monorepo
-                filters: |
-                    ServiceNotificationCenter:      'ServiceNotificationCenter/**'
-                    ServiceSMS:                     'ServiceSMS/**'
-                    ServiceTurnOnWaterTank:         'ServiceTurnOnWaterTank/**'
-
+            - name: Fetch changed files from GitHub API
+              id: parse
+              env:
+                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                SHA: ${{ github.event.workflow_run.head_sha }}
+              run: |
+                # 1. Pobieramy listę zmienionych plików w tym commicie przez API GitHuba
+                FILES=$(gh api repos/${{ github.repository }}/commits/$SHA --query "files[].filename" --silent)
+                
+                # 2. Inicjalizujemy pustą tablicę dla wykrytych serwisów
+                SERVICES_ARRAY=()
+                
+                # 3. Sprawdzamy obecność folderów w ścieżkach plików
+                if echo "$FILES" | grep -q "^ServiceNotificationCenter/"; then SERVICES_ARRAY+=('"ServiceNotificationCenter"'); fi
+                if echo "$FILES" | grep -q "^ServiceSMS/"; then SERVICES_ARRAY+=('"ServiceSMS"'); fi
+                if echo "$FILES" | grep -q "^ServiceTurnOnWaterTank/"; then SERVICES_ARRAY+=('"ServiceTurnOnWaterTank"'); fi
+                
+                # 4. Formatujemy tablicę do postaci JSON: ["Serwis1", "Serwis2"]
+                JSON_OUTPUT=$(echo "${SERVICES_ARRAY[@]}" | sed 's/ /,/g')
+                echo "services=[$JSON_OUTPUT]" >> $GITHUB_OUTPUT
+                echo "Wykryte usługi do przebudowy: [$JSON_OUTPUT]"
+                    
     build-and-push:
         needs: [changes-detection]
         if: ${{ needs.changes-detection.outputs.changed_service != '[]' && needs.changes-detection.outputs.changed_service != '' }}
