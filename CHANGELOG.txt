@@ -61,6 +61,8 @@ futher services updates are on stand by, they will be introduce after azure will
         ServiceDBtoKafka(v0.1)            - raw service, without anything generic and customable
         BackendCore(v0.8)                 - it is mostly api, but kafka part require some work to be more custom
 todo:(notification-center) - split db_cfg , env loading and connstring assambly move to setting, import it to db_cfg.py ->db_session.py , fix dependency
+todo:(workflow ACR): fix pushing - it should push only one contained, this which was changed- not all
+
 
       
 stage 20:
@@ -70,7 +72,7 @@ done(technical): fixes and modifications for abore renaming, fix for db cfg in d
 done(azure workflow): add matrix build to push to ACR recently updated image of selected microservice
 todo: add os.getenv("GITHUB_ACTIONS") flag to tests which will fail on local 
 done(git): fix in gitignore - it also unfortunettly ingnore db_access_layer and db_cfg (was craeted to ignore files with db credentials)
-done(workflow): fix for deploy to ACR workflow - compare commit sha with main to precisly one service to acr, not all like before
+done(notification_center):deploy on azure, prepare data in postgres db, prepare scripts and test topics to match
 
 stage 19:
 done(technical): tests rearrange into tests piramid - unit (launch each time), integration(manually launch) and pipeline (manually launch - ) 
