@@ -12,6 +12,9 @@ KAFKA_TOPIC_TEMPLATE=           os.getenv("KAFKA_TOPIC_TEMPLATE","topic.message"
 KAFKA_EVENT_HUB_CONNECTION_STRING=  os.getenv("KAFKA_EVENT_HUB_CONNECTION_STRING")
 KAFKA_EVENT_HUB_NAMESPACE=          os.getenv("KAFKA_EVENT_HUB_NAMESPACE")
 
+#redis cfg in redis_cfg.py
+#do cfg in infrestructure>db_cfg.py
+
 if "," in raw_KAFKA_INCOMING_TOPICS:
     KAFKA_INCOMING_TOPICS = [topic.strip() for topic in raw_KAFKA_INCOMING_TOPICS.split(",")] \
                                     if raw_KAFKA_INCOMING_TOPICS else ['notification_service','front_api_return_msg']
