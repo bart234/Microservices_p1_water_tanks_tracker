@@ -9,13 +9,12 @@ on:
 
 env: 
   ACR_SERVER: ${{ secrets.ACR_SERVER }}
-  ACR_DEPLOY_FLAG: ${{ secrets.ACR_DEPLOY_FLAG }}
 
 jobs:
   #it setting  variable about which branch was changed   and which run shoule be run
   changes-detection:
     runs-on: ubuntu-latest
-    if: (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success') && env.ACR_DEPLOY_FLAG == 'True'
+    if: "(github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success') && vars.ACR_DEPLOY_FLAG == 'True'"
     outputs: 
       #it getting 'tag' from section filters and save it info changed_service variable
       #that tag is later used as a distingction what was chagnged
