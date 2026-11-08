@@ -1,4 +1,4 @@
-name: Microservices pipeline-contract-test-001 pipeline v1
+name: Pipeline Tests
 #contract-test-1 :path
 #water_tank_service in before   -> dummy creation: topic: water_tank_power (in_tempalte -> in)
 #                   out         -> front_api_return_msg
@@ -7,14 +7,14 @@ name: Microservices pipeline-contract-test-001 pipeline v1
 #                   catch       -> front_api_return_msg
 #                   out         -> sms_service.message
 #sms_service        
-#                   catch       -> sms_service.message
+#                   catch       -> sms_servicse.message
 #                   out         -> front_api_message_service
 #
   
 on:
   workflow_dispatch:    #run on demand
   workflow_run:
-    workflows: ["Microservices unit-test pipeline v1"]
+    workflows: ["Unit tests"]
     types: 
       - completed
 

@@ -61,9 +61,18 @@ futher services updates are on stand by, they will be introduce after azure will
         ServiceDBtoKafka(v0.1)            - raw service, without anything generic and customable
         BackendCore(v0.8)                 - it is mostly api, but kafka part require some work to be more custom
 todo:(notification-center) - split db_cfg , env loading and connstring assambly move to setting, import it to db_cfg.py ->db_session.py , fix dependency
-todo:(workflow ACR): fix pushing - it should push only one contained, this which was changed- not all
+todo:(workflow ACR): fix pushing - it shouls push only one contained, this which was changed- not all
+
+todo: BackendCore - tests - they need rework and adjust for check if kafka msg are recived
+todo: ServiceDBtoKafka - tests - they ahve to be created like from scratch 
+todo: BackendCore - switch db connection from sync to async to avoid  "stopping" api during db connection 
 
 
+stage 21:
+done(BackendCore): small cleaning and adjustment in files and folders to have db config also in settings
+done(BackendCore): fix for docker aokafka - redesign a little how that consumer is loaded
+done()
+done(ServiceDbtoKafka): reworked
       
 stage 20:
 done(technical): prepare redme and desc
