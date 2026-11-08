@@ -11,7 +11,7 @@ services:
       PYTHONUNBUFFERED: 1    #it solve problem when python logs are not appear in console
       POSTGRES_USER_FILE: /run/secrets/db_user              
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-      POSTGRES_DB_LOCALHOST_FILE: /run/secrets/db_localhost       # db
+      POSTGRES_DB_LOCALHOST_FILE: /run/secrets/db_localhost
       POSTGRES_DB_FILE: /run/secrets/db_postgres_db  
       POSTGRES_USER: None
       POSTGRES_PASSWORD: None 
@@ -70,13 +70,18 @@ services:
     volumes:
       - ./ServiceDBtoKafka:/ServiceDBtoKafka
     environment:      
+      PROD_MODE: True
+      RECORD_LIMIT: 10
+      SLEEP_TIME: 5
+      TOPIC_LIST_FOR_NOTIFICATION_CENTER: water_tank_power,sms_service,email_service
       POSTGRES_USER_FILE: /run/secrets/db_user              
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-      POSTGRES_DB_LOCALHOST: /run/secrets/db_localhost       # db
-      POSTGRES_DB_FILE: /run/secrets/db_postgres_db   
-      PROD_MODE: "False"
-      WAIT_TIME: 5
-      RECORD_LIMIT: 7
+      POSTGRES_DB_LOCALHOST_FILE: /run/secrets/db_localhost
+      POSTGRES_DB_FILE: /run/secrets/db_postgres_db  
+      POSTGRES_USER: None
+      POSTGRES_PASSWORD: None 
+      POSTGRES_DB_LOCALHOST: None
+      POSTGRES_DB: None
 
     secrets:
       - db_password
