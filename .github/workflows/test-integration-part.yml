@@ -1,11 +1,11 @@
-name: Microservices integration-test pipeline v1
+name: Integration test
 #longest - each test will run kafka container
  
 
 on:
   workflow_dispatch:    #run on demand
   workflow_run:
-    workflows: ["Microservices pipeline-contract-test-001 pipeline v1"]
+    workflows: ["Pipeline Tests"]
     types: 
       - completed
 
