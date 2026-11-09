@@ -1,5 +1,6 @@
 from sqlalchemy import Column,Integer,String,DateTime
-from base import Base
+
+from ServiceDBtoKafka.models.base import Base
 
 class MaintenenceData_tab(Base):
     __tablename__='maitenence_data'
