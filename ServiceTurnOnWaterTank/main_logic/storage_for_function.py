@@ -1,7 +1,4 @@
-from functools import partial
-from confluent_kafka import Producer
-import json
-    
+
 def delivery_report(err,msg,**kwargs):
     if err: 
         print(f"Log: Delivery error {err}")
