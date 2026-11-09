@@ -1,6 +1,6 @@
 FROM python:3.12-slim
-WORKDIR /ServiceDBtoKafka
+WORKDIR /app
 COPY ./requirements.txt ./       
 RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-CMD ["python","-u","service_db_to_kafka.py"]
+COPY . ./ServiceDBtoKafka
+CMD ["python","-u","-m","ServiceDBtoKafka.service_main"]
