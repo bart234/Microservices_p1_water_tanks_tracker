@@ -3,7 +3,7 @@ name: Release to ACR
 on: 
   workflow_dispatch:    #run on demand 
   workflow_run:
-    workflows: ["Pipeline Tests"]
+    workflows: ["Integration test"]
     types: 
       - completed
 
