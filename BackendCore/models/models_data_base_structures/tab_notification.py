@@ -1,5 +1,5 @@
 from sqlalchemy import Column,Integer,String,DateTime
-from BackendCore.db_cfg import Base
+from BackendCore.models.base import Base
 
 class Notification_tab(Base):
     __tablename__='notification'
