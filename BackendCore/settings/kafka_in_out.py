@@ -3,7 +3,7 @@ import os
 #consumer
 KAFKA_WAIT_TIME_BETWEE_POOLS =  int(os.getenv("KAFKA_WAIT_TIME_BETWEE_POOLS",5)) 
 KAFKA_SERVER_ADDRESS =          os.getenv("KAFKA_SERVER_ADDRESS","kafka:29092")
-raw_KAFKA_INCOMING_TOPICS =     os.getenv("KAFKA_INCOMING_TOPICS") #['front_api_return_msg','front_api_message_service']
+raw_KAFKA_INCOMING_TOPICS =     os.getenv("KAFKA_INCOMING_TOPICS") #front_api_return_msg,front_api_message_service
 KAFKA_GROUP_ID =                os.getenv("KAFKA_GROUP_ID","Api_feedback_loop.id") #api_feedback_loop
 
 #producer

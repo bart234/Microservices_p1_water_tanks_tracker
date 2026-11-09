@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from BackendCore.db_cfg import engine,Base
+from BackendCore.db_cfg import engine
+from BackendCore.models.base import Base
 from BackendCore.api.routers import tank_path
 from BackendCore.settings.kafka_in_out import kafka_in_cfg, kafka_out_cfg,KAFKA_EVENT_HUB_CONNECTION_STRING
 from contextlib import asynccontextmanager
@@ -63,28 +64,35 @@ async def websocket_endpoint(websocket: WebSocket):
         active_connections.remove(websocket)
 
 async def consume_kafka_callbacks():
-    if KAFKA_EVENT_HUB_CONNECTION_STRING:        
-        import ssl
-        ssl_context = ssl.create_default_context()
-        
-        consumer = AIOKafkaConsumer(*kafka_in_cfg['KAFKA_TOPIC_CONSUMER'],
-                                    bootstrap_servers=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["bootstrap.servers"],
-                                    security_protocol=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["security.protocol"],
-                                    sasl_mechanism=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["sasl.mechanism"],
-                                    sasl_plain_username=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["sasl.username"],
-                                    sasl_plain_password=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["sasl.password"],
-                                    group_id=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["group.id"],
-                                    auto_offset_reset=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["auto.offset.reset"],
-                                    ssl_context=ssl_context)   
+    consumer = None
+    try:      
+        topics_list =  kafka_in_cfg['KAFKA_TOPIC_CONSUMER'] if isinstance(kafka_in_cfg['KAFKA_TOPIC_CONSUMER'], list) else [kafka_in_cfg['KAFKA_TOPIC_CONSUMER']]
+        consumer_kwargs = {
+            "bootstrap_servers":    kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["bootstrap.servers"],
+            "group_id":             kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["group.id"],
+            "auto_offset_reset":    kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["auto.offset.reset"]
+        }
 
-        await consumer.start()
-    else:
-        consumer = AIOKafkaConsumer(*kafka_in_cfg['KAFKA_TOPIC_CONSUMER'],
-                                bootstrap_servers=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["bootstrap.servers"],
-                                group_id=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["group.id"],
-                                auto_offset_reset=kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["auto.offset.reset"])   
-    print("Log: Kafka connection success.Consumer started")
-    try:
+        if KAFKA_EVENT_HUB_CONNECTION_STRING:
+            print("Log Kafka consumer set for: Azure")       
+            import ssl
+            ssl_context = ssl.create_default_context()
+            
+            consumer_kwargs.update({
+                "security_protocol":    kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["security.protocol"],
+                "sasl_mechanism":       kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["sasl.mechanism"],
+                "sasl_plain_username":  kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["sasl.username"],
+                "sasl_plain_password":  kafka_in_cfg['KAFKA_CONSUMER_CONFIG']["sasl.password"],
+                "ssl_context":          ssl_context
+            })
+        else:
+            print("Log Kafka consumer set for: other systems")  
+
+        consumer = AIOKafkaConsumer(*topics_list,**consumer_kwargs)
+        print("Log: kafka conenction starts..")
+        await consumer.start()        
+        print("Log: Kafka connection success.Consumer started")
+
         #it sit inbackground and if any msg appear from expected topic
         async for msg in consumer:
             in_data= msg.value.decode("utf-8")  
@@ -102,7 +110,9 @@ async def consume_kafka_callbacks():
                     asyncio.create_task(connection.send_json(data))
                 except Exception:
                     pass
+
     except Exception as e:
         print(f"Log: Kafka error during data gathering from services: {e}", flush=True)
     finally:
-        await consumer.stop()
+        if consumer:
+            await consumer.stop()
