@@ -66,7 +66,6 @@ class NotificationCenterProcess:
             topic = topic_to_send,
             value = data_to_send,        
             headers = header_to_send)
-        self._producer.flush()
        
     def send_messages_to_external_services(self,redis_data:R_Notification_data_INOUT,header):
         '''iterate on msg_services which are online,
