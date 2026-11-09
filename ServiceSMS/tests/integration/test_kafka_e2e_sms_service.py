@@ -21,7 +21,7 @@ class TestNotificationCenterProcess_KafkaInstance:
 
         #-------------------producer creation for class--------------------
         #topic.message - 'topic' will be replaced by expected service like: sms_service.message or email_service.message
-        kafka_out_cfg = {'KAFKA_RETURN_TOPIC_FALLBACK_NOTIF':'front_api_message_service',       
+        kafka_out_cfg = {'KAFKA_TOPIC_PRODUCER':'front_api_message_service',       
                         'KAFKA_PRODUCER_CONFIG' :
                                 {'bootstrap.servers':KAFKA_SERVER_ADDRESS}
                         }
@@ -64,7 +64,7 @@ class TestNotificationCenterProcess_KafkaInstance:
         t1 = MainServiceRun()
         t1.load_settings_from_cfgs(None,None,kafka_out_cfg,None)
         t1._set_kafka_producer_cfg()
-        t1.send_messages_to_external_services(r_data,kafka_out_cfg['KAFKA_RETURN_TOPIC_FALLBACK_NOTIF'])   
+        t1.send_messages_to_external_services(r_data,kafka_out_cfg['KAFKA_TOPIC_PRODUCER'])   
         t1._producer.flush()
         
         #collect data

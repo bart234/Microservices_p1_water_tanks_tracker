@@ -4,6 +4,7 @@ from ServiceSMS.models.kafka_data_models.kafka_incoming_data import KE_SmsServic
 from ServiceSMS.models.kafka_data_models.kafka_outgoing_data import KE_Front_Api_Message_Service_OUT
 
 
+
 class MainServiceRun:    
     def __init__(self):
         self._redis =           None
@@ -27,6 +28,9 @@ class MainServiceRun:
             self._consumer = Consumer(self.kafka_in_cfg['KAFKA_CONSUMER_CONFIG'])
             self._consumer.subscribe(self.kafka_in_cfg['KAFKA_TOPIC_CONSUMER'])  
 
+    def get_kafka_producer(self):
+        return self._producer
+    
     def get_kafka_consumer(self):
         return self._consumer
 
@@ -36,19 +40,19 @@ class MainServiceRun:
     def _set_kafka_producer_cfg(self):
         self._producer = Producer(self.kafka_out_cfg['KAFKA_PRODUCER_CONFIG'])   
 
-    def _produce_message(self,topic_to_send,data_to_send,header_to_send):            
-        self._producer.produce(
-            topic = topic_to_send,
-            value = data_to_send,        
-            headers = header_to_send)
+    # def _produce_message(self,topic_to_send,data_to_send,header_to_send):            
+    #     self._producer.produce(
+    #         topic = topic_to_send,
+    #         value = data_to_send,        
+    #         headers = header_to_send)
 
-    def _produce_message_with_callback(self,topic_to_send,data_to_send,header_to_send,callback_function,callback_log_data):
-        coupling_fn_with_data = partial(callback_function,*callback_log_data)
-        self._producer.produce(
-            topic = topic_to_send,
-            value = data_to_send,
-            callback=coupling_fn_with_data,        
-            headers = header_to_send)
+    # def _produce_message_with_callback(self,topic_to_send,data_to_send,header_to_send,callback_function,callback_log_data):
+    #     coupling_fn_with_data = partial(callback_function,**callback_log_data)
+    #     self._producer.produce(
+    #         topic = topic_to_send,
+    #         value = data_to_send,
+    #         callback=partial(callback_function,{'corr_id':1,'action_id':2,'tank_tag':3,'message':4}),        
+    #         headers = header_to_send)
 
     def send_messages_to_external_services(self,
                                            outcoming_event: KE_Front_Api_Message_Service_OUT, 
@@ -62,17 +66,15 @@ class MainServiceRun:
                     value = outcoming_event.get_data_as_binary(),
                     headers = outcoming_event.get_headers_as_tuple_for_kafka())
         else:
-
             callback_function, callback_log_details = callback_function_and_args     
 
             #bound function with args
-            coupling_fn_with_data = partial(callback_function,*callback_log_details)
+            coupling_fn_with_data = partial(callback_function,**callback_log_details)
 
             self._producer.produce(
                 topic = kafka_event,
-                value = outcoming_event.get_data_as_binary(),
-                callback=coupling_fn_with_data,        
-                headers = outcoming_event.get_headers_as_tuple_for_kafka())
-
+                value = outcoming_event.get_data_as_binary(),                        
+                headers = outcoming_event.get_headers_as_tuple_for_kafka(),
+                on_delivery=coupling_fn_with_data)
 
        

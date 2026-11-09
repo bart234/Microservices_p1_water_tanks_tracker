@@ -3,10 +3,10 @@ from ServiceSMS.main_logic.main_service_run_cls import MainServiceRun
 from ServiceSMS.models.kafka_data_models.kafka_incoming_data import KE_SmsService_IN
 from ServiceSMS.models.kafka_data_models.kafka_outgoing_data import KE_Front_Api_Message_Service_OUT
 from ServiceSMS.parer_logic.sms_logic_creation import PrepareSMS
-
+from ServiceSMS.main_logic.thread_to_pool import start_producer_background_loop
 from ServiceSMS.settings.kafka_in_out import kafka_in_cfg,kafka_out_cfg
 from ServiceSMS.settings.service_setting import service_setting
-from .storage_for_function import delivery_report
+from ServiceSMS.main_logic.storage_for_function import delivery_report
 import datetime
 
 def main():     
@@ -22,6 +22,10 @@ def main():
     #get consumer
     consumer_=run.get_kafka_consumer()
 
+    #run other th for pool
+    start_producer_background_loop(run._producer)
+
+    
     print(f"Log: {service_setting["service_name"]} service is running")   
     try:
         while True:
@@ -60,13 +64,13 @@ def main():
             log_details = {'corr_id':incoming_event.corr_id,
                             'action_id':incoming_event.action_id,
                             'tank_tag':incoming_event.tank_tag,
-                            'log_description': run.service_setting['log_description']}
+                            'message': run.service_setting['log_description']}
 
             #producer
             run.send_messages_to_external_services(outcoming_event=output_event,
                                                    kafka_event=run.kafka_out_cfg['KAFKA_TOPIC_PRODUCER'],
                                                    callback_function_and_args=(delivery_report,log_details))            
-
+            run.get_kafka_producer().flush(timeout=1.0)
      
 
     except KeyboardInterrupt:
