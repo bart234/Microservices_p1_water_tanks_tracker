@@ -1,0 +1,11 @@
+postgress_user =        "postgress_user_name"
+postgress_pwd  =        "postgress_password"
+postgress_localhost =   "address_to_server.for.postgress.azure.com"
+postgress_db_name =     "database_name_where_we_keep_data"
+
+kafka_event_hub_conn_str =  "Endpoint=sb:event_hub_endpoint_connection_string_with_SharedAccessKeyName=SendListenKey_and_SharedAccessKey="
+acr_password =              "azure_container_registry_pwd_1th_or_2nd_one"
+
+kafka_event_hub_namespace = "main name for eventhub namespace"
+resource_group_name = "project name with whole resource group"
+location = "region where to put azure infrastructure"

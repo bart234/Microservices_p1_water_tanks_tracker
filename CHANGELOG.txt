@@ -13,10 +13,7 @@ target:
 #services online crate water tank - get it online/offline, set on/off services sms_notification (other without impact)
 
 
-updated(19)
-todo: (front-api incoming event) - discrapencies in SMSService(1 field more) contract and WaterTank
-
-    Service: front_api --------------------------> [action saved in database: PostgreSQL] -------------------------------------
+    Service: front_api --------------------------> [action saved in database: PostgreSQL] -----------------------------------
   (Async Fast API)                                                  |                                                       |
         ▲                                                           ▼                                                       |
         |                                                 Service: DB_to_kafka                                              |
@@ -40,11 +37,11 @@ Action <----------   TurnOnWaterTank                       ---------------------
         |                                                                                                  Send_SMS  ----------> Action 
         |                           (topic:front_api_message_service)                                         |                  (Mock) 
         -------------------------------------------------------------------------------------------------------                                        
-                                                                                                                                                         
+(u19)                                                                                                                                                  
                                                               
 todo: refactor names in api
 todo: think what to do with text files about db auth db_texts -> to json?
-
+todo: (front-api incoming event) - discrapencies in SMSService(1 field more) contract and WaterTank
 
 todo: variable in docker-compose - POSTGRES_DB_LOCALHOST should be swithced to -> POSTGRES_DB_LOCALHOST_FILE 
 todo_fix(sms_service): when tank is online, and we turn ON sms-service - there is no confirmation about that action - noinfo in api, no info on sms
@@ -66,12 +63,15 @@ todo:(workflow ACR): fix pushing - it shouls push only one contained, this which
 todo: BackendCore - tests - they need rework and adjust for check if kafka msg are recived
 todo: ServiceDBtoKafka - tests - they ahve to be created like from scratch 
 todo: BackendCore - switch db connection from sync to async to avoid  "stopping" api during db connection 
+todo: add tests to ServiceDBtoKafka, BackendCore
 
+stage 22:
+done(terraform): incude terraform, match with azure, run whole infrastructure at once
 
 stage 21:
 done(BackendCore): small cleaning and adjustment in files and folders to have db config also in settings
 done(BackendCore): fix for docker aokafka - redesign a little how that consumer is loaded
-done()
+done(callback): another thread was added in 2 places to fix and not block log from callback
 done(ServiceDbtoKafka): reworked
       
 stage 20:
