@@ -4,12 +4,29 @@
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
 # User-specific files
-*.pyc
+# Terraform
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+#db 
 db_localhost*
 db_password*
 db_postgres_db*
 db_user*
+
 *.db
+*.pyc
 *.rsuser
 *.suo
 *.user
