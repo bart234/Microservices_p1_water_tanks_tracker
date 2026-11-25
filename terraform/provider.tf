@@ -1,9 +1,8 @@
 provider "azurerm" {
   features {
+    key_vault {
+      purge_soft_delete_on_destroy = true
+    }
   }
-  environment                     = "public"
-  use_msi                         = false
-  use_cli                         = true
-  use_oidc                        = false
-  resource_provider_registrations = "none"
+
 }

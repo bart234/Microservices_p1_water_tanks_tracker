@@ -65,8 +65,15 @@ todo: ServiceDBtoKafka - tests - they ahve to be created like from scratch
 todo: BackendCore - switch db connection from sync to async to avoid  "stopping" api during db connection 
 todo: add tests to ServiceDBtoKafka, BackendCore
 
+
+
 stage 22:
-done(terraform): incude terraform, match with azure, run whole infrastructure at once
+done(terraform): make infrastructure export to terraform file, work with it, divede it by types, check how it works (it does not) 
+done(terraform): cover missing knownledge about terraofrm, redo from scrath whole setting
+done(azure): add terraform state to bloob for terraform state and join both 
+done(terraform): prepare azure key vault to keep variables
+done(terraform): prepare versioning system by adding dev/uat/prod to terraform variable
+done(terraform): succesfully configure whole app infrastructure and deploy all from terraform fille by one apply
 
 stage 21:
 done(BackendCore): small cleaning and adjustment in files and folders to have db config also in settings

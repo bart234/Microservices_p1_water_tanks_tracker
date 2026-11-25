@@ -9,8 +9,12 @@ Services have complete data isolation following the **Database-per-Service** pat
 
 ### Core Data & Event Flow
 ![Architecture](docs/architecture.png) 
-                
+
 ---
+## Infrastructure as Code (IaC)
+*   **Fully Configured in Terraform:** With remote state on Azure Blob (auth by RBAC)
+*   **Zero-Trust & Passwordless Security:** No hardcoded credentials or `.env` files.  Database and Kafka secrets are dynamically fetched from Azure Key Vault, and container images are pulled from ACR (`AcrPull`) using User-Assigned Managed Identity
+*   **Network Isolation:** Azure Database for PostgreSQL Flexible Server without access to public network, set on private DNS, and accessible strictly within the internal VNet.
 
 ## 🛠️ Microservices Breakdown
 
